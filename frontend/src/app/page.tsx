@@ -180,7 +180,7 @@ export default function LandingPage() {
           HERO — ai.mp4 full-width background, text overlay
       ════════════════════════════════════════════════════════════════════════ */}
       <section style={S.hero}>
-        <video src="/ai.mp4" autoPlay muted loop playsInline style={S.heroBgVideo} />
+        <video src="https://duty-bucket-test.s3.ap-south-1.amazonaws.com/uploads/1777668831718-ai.mp4" autoPlay muted loop playsInline style={S.heroBgVideo} />
         <div style={S.heroOverlay} />
         <div style={S.heroContent}>
           <h1 style={S.headline}>
@@ -286,7 +286,7 @@ export default function LandingPage() {
           FULL-WIDTH — deepmind.mp4
       ════════════════════════════════════════════════════════════════════════ */}
       <div style={S.videoStrip}>
-        <video src="/deepmind.mp4" autoPlay muted loop playsInline style={S.stripVideo} />
+        <video src="https://duty-bucket-test.s3.ap-south-1.amazonaws.com/uploads/1777668764485-deepmind.mp4" autoPlay muted loop playsInline style={S.stripVideo} />
         <div style={S.stripLabel}>
           <span style={S.stripDot} />
           GLM-5-FP8 · Intel TDX enclave · Sealed inference
@@ -328,7 +328,7 @@ export default function LandingPage() {
           TEE ENCLAVE — wave video background, text overlay
       ════════════════════════════════════════════════════════════════════════ */}
       <div style={S.teeSection}>
-        <video src="/15682105_3840_2160_30fps.mp4" autoPlay muted loop playsInline style={S.teeBgVideo} />
+        <video src="https://duty-bucket-test.s3.ap-south-1.amazonaws.com/uploads/1777668867535-15682105_3840_2160_30fps.mp4" autoPlay muted loop playsInline style={S.teeBgVideo} />
         <div style={S.teeVideoOverlay} />
         <div style={S.teeOverContent}>
           <div style={S.teeBadge}>TEE ENCLAVE</div>
