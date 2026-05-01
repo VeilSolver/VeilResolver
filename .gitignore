@@ -1,0 +1,25 @@
+# Secrets — never commit
+.env
+.env.local
+.env.*.local
+notes.txt
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Next.js
+.next/
+out/
+
+# Foundry build artifacts
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+contracts/lib/
+
+# Misc
+*.log
+.DS_Store
+Thumbs.db
