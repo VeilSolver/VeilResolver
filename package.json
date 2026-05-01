@@ -2,10 +2,18 @@
   "name": "veilsolver",
   "version": "0.1.0",
   "private": true,
-  "workspaces": ["frontend", "solver-api", "sdk", "shared"],
+  "workspaces": [
+    "frontend",
+    "solver-api",
+    "sdk",
+    "shared"
+  ],
   "scripts": {
     "dev:api": "npm run dev --workspace=solver-api",
     "dev:frontend": "npm run dev --workspace=frontend",
     "build": "npm run build --workspace=shared && npm run build --workspace=sdk && npm run build --workspace=frontend"
+  },
+  "dependencies": {
+    "motion": "^12.38.0"
   }
 }
