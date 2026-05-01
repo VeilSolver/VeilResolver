@@ -41,8 +41,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             to   { transform: rotate(360deg); }
           }
           @keyframes pulse-dot {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(124,58,237,0.5); }
-            50%       { box-shadow: 0 0 0 6px rgba(124,58,237,0); }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(17,17,17,0.4); }
+            50%       { box-shadow: 0 0 0 6px rgba(17,17,17,0); }
           }
           @keyframes glow-breathe {
             0%, 100% { box-shadow: 0 2px 12px rgba(0,0,0,0.12); }
