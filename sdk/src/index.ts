@@ -4,7 +4,7 @@ import { encryptIntent } from "./encrypt"
 import { callSolverAPI } from "./client"
 import { submitSettlement } from "./settle"
 import { uploadStrategy } from "./strategy"
-import type { SolveResponse } from "@veilsolver/shared"
+import type { SolveResponse } from "./types"
 
 // Named exports — for integrators who want step-by-step control
 export { buildIntent } from "./intent"
@@ -13,7 +13,7 @@ export { callSolverAPI } from "./client"
 export { submitSettlement } from "./settle"
 export { uploadStrategy } from "./strategy"
 export { SolverAPIError, SettlementError, EncryptionError, StrategyError } from "./errors"
-export type { TradingIntent, SolveResponse, ExecutionPlan } from "@veilsolver/shared"
+export type { TradingIntent, SolveResponse, ExecutionPlan } from "./types"
 
 export interface VeilSolverConfig {
   apiUrl: string

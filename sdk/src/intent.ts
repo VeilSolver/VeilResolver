@@ -1,5 +1,5 @@
 import { ethers } from "ethers"
-import type { TradingIntent } from "@veilsolver/shared"
+import type { TradingIntent } from "./types"
 
 export function buildIntent(params: {
   tokenIn: string

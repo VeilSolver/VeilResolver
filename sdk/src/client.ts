@@ -1,4 +1,4 @@
-import type { TradingIntent, SolveResponse } from "@veilsolver/shared"
+import type { TradingIntent, SolveResponse } from "./types"
 import { SolverAPIError } from "./errors"
 
 export async function callSolverAPI(

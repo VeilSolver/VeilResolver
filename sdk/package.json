@@ -1,20 +1,41 @@
 {
-  "name": "@veilsolver/sdk",
+  "name": "veilsolver-sdk",
   "version": "0.1.0",
-  "description": "SDK for integrating VeilSolver private intent execution",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "description": "MEV-resistant private intent solver SDK for 0G Chain",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "defi",
+    "mev",
+    "intent",
+    "solver",
+    "0g",
+    "tee",
+    "privacy",
+    "ethereum"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VeilSolver/VeilResolver"
   },
   "dependencies": {
-    "@veilsolver/shared": "*",
     "eciesjs": "^0.4.0",
     "ethers": "^6.0.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0",
     "@types/node": "^20.0.0"
+  },
+  "peerDependencies": {
+    "ethers": "^6.0.0"
   }
 }

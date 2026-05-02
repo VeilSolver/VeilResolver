@@ -1,5 +1,5 @@
 import { ethers } from "ethers"
-import type { SolveResponse } from "@veilsolver/shared"
+import type { SolveResponse } from "./types"
 import { SettlementError } from "./errors"
 
 const ERC20_ABI = [
