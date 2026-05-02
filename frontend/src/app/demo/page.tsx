@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { ethers } from "ethers"
-import { buildIntent, encryptIntent, callSolverAPI, submitSettlement } from "@veilsolver/sdk"
-import type { SolveResponse } from "@veilsolver/sdk"
+import { buildIntent, encryptIntent, callSolverAPI, submitSettlement } from "veilsolver-sdk"
+import type { SolveResponse } from "veilsolver-sdk"
 import Nav from "../components/Nav"
 import CTAFooter from "../components/CTAFooter"
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { uploadStrategy } from "@veilsolver/sdk"
+import { uploadStrategy } from "veilsolver-sdk"
 import Nav from "../components/Nav"
 import CTAFooter from "../components/CTAFooter"
 
