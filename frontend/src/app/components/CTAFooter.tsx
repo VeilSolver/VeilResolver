@@ -6,7 +6,7 @@ export default function CTAFooter() {
   return (
     <div style={S.ctaStrip}>
       <video
-        src="/12788076_3840_2160_24fps.mp4"
+        src="https://duty-bucket-test.s3.ap-south-1.amazonaws.com/uploads/1777716576496-7688616-uhd_4096_2160_24fps.mp4"
         autoPlay muted loop playsInline
         style={S.stripVideo}
       />

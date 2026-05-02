@@ -19,7 +19,13 @@ contracts/cache/
 contracts/broadcast/
 contracts/lib/
 
+# Large media — hosted on S3
+frontend/public/*.mp4
+frontend/public/*.webm
+sdk/*.tgz
+
 # Misc
 *.log
 .DS_Store
 Thumbs.db
+.vercel
