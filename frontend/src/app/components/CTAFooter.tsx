@@ -11,7 +11,7 @@ export default function CTAFooter() {
         style={S.stripVideo}
       />
       <div style={S.ctaOverlay} />
-      <div style={S.ctaContent}>
+      <div style={S.ctaContent} className="vs-cta-content">
         <div style={S.ctaBadge}>GET STARTED</div>
         <h2 style={S.ctaHeading}>Ready to build?</h2>
         <p style={S.ctaSubtext}>

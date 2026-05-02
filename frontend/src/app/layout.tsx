@@ -77,6 +77,70 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           .solve-btn-idle:hover {
             animation: glow-breathe 2s ease-in-out infinite;
           }
+
+          /* ── Mobile responsive ─────────────────────────────────────────── */
+          @media (max-width: 768px) {
+            .vs-nav {
+              width: calc(100vw - 32px) !important;
+              padding: 0 14px !important;
+            }
+            .vs-nav-links a {
+              padding: 6px 8px !important;
+              font-size: 13px !important;
+            }
+            .vs-hero-section {
+              padding: 108px 20px 40px !important;
+            }
+            .vs-main-inner {
+              padding: 32px 20px 60px !important;
+            }
+            .vs-section-pad {
+              padding: 64px 20px !important;
+            }
+            .vs-hero-content {
+              padding: 0 16px !important;
+            }
+            .vs-problem-inner {
+              flex-direction: column !important;
+              gap: 40px !important;
+            }
+            .vs-problem-left {
+              flex: none !important;
+              position: static !important;
+              width: 100% !important;
+            }
+            .vs-grid-3,
+            .vs-demo-grid,
+            .vs-strategy-grid,
+            .vs-docs-grid {
+              grid-template-columns: 1fr !important;
+            }
+            .vs-cap-grid {
+              grid-template-columns: 1fr !important;
+            }
+            .vs-cap-grid .cap-item {
+              grid-column: span 1 !important;
+            }
+            .vs-tee-points {
+              grid-template-columns: 1fr !important;
+              gap: 20px !important;
+            }
+            .vs-tee-content {
+              padding: 48px 24px !important;
+            }
+            .vs-flow-diagram {
+              overflow-x: auto !important;
+            }
+            .vs-cta-content {
+              padding: 0 24px !important;
+              max-width: 100% !important;
+            }
+          }
+          @media (max-width: 480px) {
+            .vs-nav-links {
+              display: none !important;
+            }
+          }
           .result-card {
             animation: fade-up 0.4s ease forwards;
           }

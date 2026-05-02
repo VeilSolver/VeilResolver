@@ -18,7 +18,7 @@ export default function Nav({ address, onConnect }: NavProps) {
   const pathname = usePathname()
 
   return (
-    <header style={S.header}>
+    <header style={S.header} className="vs-nav">
       <div style={S.left}>
         <Link href="/" style={S.logoLink}>
           <span style={S.logoHex}>⬡</span>
@@ -27,7 +27,7 @@ export default function Nav({ address, onConnect }: NavProps) {
         </Link>
       </div>
 
-      <nav style={S.center}>
+      <nav style={S.center} className="vs-nav-links">
         {NAV_LINKS.map(link => {
           const isActive = pathname === link.href
           return (

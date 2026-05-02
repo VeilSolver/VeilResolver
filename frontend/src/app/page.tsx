@@ -164,13 +164,13 @@ export default function LandingPage() {
       <ParticleBackground />
 
       {/* ── Nav ────────────────────────────────────────────────────────────── */}
-      <header style={S.topNav}>
+      <header style={S.topNav} className="vs-nav">
         <div style={S.navLogo}>
           <span style={S.logoHex}>⬡</span>
           <span style={S.logoText}>VeilSolver</span>
           <span style={S.logoDot} />
         </div>
-        <nav style={S.navLinks}>
+        <nav style={S.navLinks} className="vs-nav-links">
           <Link href="/demo"     style={S.navLink}>Demo</Link>
           <Link href="/strategy" style={S.navLink}>Strategy</Link>
           <Link href="/docs"     style={S.navLink}>Docs</Link>
@@ -183,7 +183,7 @@ export default function LandingPage() {
       <section style={S.hero}>
         <video src="https://duty-bucket-test.s3.ap-south-1.amazonaws.com/uploads/1777668831718-ai.mp4" autoPlay muted loop playsInline style={S.heroBgVideo} />
         <div style={S.heroOverlay} />
-        <div style={S.heroContent}>
+        <div style={S.heroContent} className="vs-hero-content">
           <h1 style={S.headline}>
             <span style={S.headlineWhite}>VeilSolver</span>
           </h1>
@@ -211,10 +211,10 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════════════
           PROBLEM
       ════════════════════════════════════════════════════════════════════════ */}
-      <section style={S.problemSection}>
-        <div style={S.problemInner}>
+      <section style={S.problemSection} className="vs-section-pad">
+        <div style={S.problemInner} className="vs-problem-inner">
           {/* Left */}
-          <div style={S.problemLeft}>
+          <div style={S.problemLeft} className="vs-problem-left">
             <div style={S.problemBadge}>THE PROBLEM</div>
             <div style={S.problemBigNum}>$1B+</div>
             <p style={S.problemSubtext}>
@@ -244,11 +244,11 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════════════
           HOW IT WORKS
       ════════════════════════════════════════════════════════════════════════ */}
-      <section style={S.sectionAlt}>
+      <section style={S.sectionAlt} className="vs-section-pad">
         <div style={S.sectionInner}>
           <div style={S.sectionBadge}>HOW IT WORKS</div>
           <h2 style={S.sectionHeading}>Three steps. Zero leaks.</h2>
-          <div style={S.threeGrid} data-anime-group>
+          <div style={S.threeGrid} className="vs-grid-3" data-anime-group>
             {HOW_STEPS.map(step => (
               <div key={step.num} style={S.card} data-anime-card>
                 <div style={S.stepNum}>{step.num}</div>
@@ -257,7 +257,7 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-          <div style={S.flowDiagram}>
+          <div style={S.flowDiagram} className="vs-flow-diagram">
             <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: 0 }}>
               <div style={S.flowBox}>
                 <div style={S.flowNodeTitle}>User</div>
@@ -297,11 +297,11 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════════════
           FEATURES
       ════════════════════════════════════════════════════════════════════════ */}
-    <section style={S.section} data-cap-section>
+    <section style={S.section} className="vs-section-pad" data-cap-section>
   <div style={S.sectionInner}>
     <div style={S.sectionBadge}>CAPABILITIES</div>
     <h2 style={S.sectionHeading}>Every guarantee enforced by cryptography</h2>
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+    <div className="vs-cap-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
       {FEATURES.map((f, i) => {
         const t = CAP_THEMES[i]
         return (
@@ -331,14 +331,14 @@ export default function LandingPage() {
       <div style={S.teeSection}>
         <video src="https://duty-bucket-test.s3.ap-south-1.amazonaws.com/uploads/1777668867535-15682105_3840_2160_30fps.mp4" autoPlay muted loop playsInline style={S.teeBgVideo} />
         <div style={S.teeVideoOverlay} />
-        <div style={S.teeOverContent}>
+        <div style={S.teeOverContent} className="vs-tee-content">
           <div style={S.teeBadge}>TEE ENCLAVE</div>
           <h2 style={S.teeHeading}>The enclave is the trust root</h2>
           <p style={S.teeSub}>
             A fully compromised server still cannot read your intent or forge a valid plan.<br />
             Hardware isolation — not operator promises.
           </p>
-          <div style={S.teePointsGrid}>
+          <div style={S.teePointsGrid} className="vs-tee-points">
             {TEE_POINTS.map(p => (
               <div key={p.label} style={S.teePointOver}>
                 <div style={S.teeCheckOver}>✓</div>
@@ -355,12 +355,12 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════════════
           BUILT ON 0G
       ════════════════════════════════════════════════════════════════════════ */}
-      <section style={S.section}>
+      <section style={S.section} className="vs-section-pad">
         <div style={S.sectionInner}>
           <div style={S.sectionBadge}>INFRASTRUCTURE</div>
           <h2 style={S.sectionHeading}>Built on 0G</h2>
           <p style={S.sectionSub}>Full-stack decentralized AI infrastructure — compute, storage, and settlement.</p>
-          <div style={S.threeGrid} data-anime-group>
+          <div style={S.threeGrid} className="vs-grid-3" data-anime-group>
             {INFRA.map(c => (
               <div key={c.tag} style={S.card} data-anime-card>
                 <div style={S.infraTag}>{c.tag}</div>

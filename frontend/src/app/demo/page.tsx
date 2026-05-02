@@ -214,7 +214,7 @@ export default function DemoPage() {
       <Nav address={address} onConnect={connectWallet} />
 
       {/* ── Dark hero header ─────────────────────────────────────────────── */}
-      <div style={S.hero}>
+      <div style={S.hero} className="vs-hero-section">
         <div style={S.heroInner}>
           <div style={S.heroBadge}>TRADE DEMO</div>
           <h1 style={S.heroTitle}>Submit Intent</h1>
@@ -226,10 +226,10 @@ export default function DemoPage() {
       </div>
 
       <main style={S.main}>
-        <div style={S.mainInner}>
+        <div style={S.mainInner} className="vs-main-inner">
 
           {/* ── 2-col grid ────────────────────────────────────────────────── */}
-          <div style={S.grid}>
+          <div style={S.grid} className="vs-demo-grid">
 
             {/* ─ Left: Form ─────────────────────────────────────────────── */}
             <div style={S.card}>

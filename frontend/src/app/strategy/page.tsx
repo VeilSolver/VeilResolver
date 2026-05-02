@@ -72,7 +72,7 @@ export default function StrategyPage() {
       <Nav />
 
       {/* ── Dark hero header ─────────────────────────────────────────────── */}
-      <div style={S.hero}>
+      <div style={S.hero} className="vs-hero-section">
         <div style={S.heroInner}>
           <div style={S.heroBadge}>STRATEGY REGISTRY</div>
           <h1 style={S.heroTitle}>Upload Strategy</h1>
@@ -84,8 +84,8 @@ export default function StrategyPage() {
       </div>
 
       <main style={S.main}>
-        <div style={S.mainInner}>
-          <div style={S.layout}>
+        <div style={S.mainInner} className="vs-main-inner">
+          <div style={S.layout} className="vs-strategy-grid">
 
             {/* ── Left column: how it works ──────────────────────────────── */}
             <div style={S.sidebar}>

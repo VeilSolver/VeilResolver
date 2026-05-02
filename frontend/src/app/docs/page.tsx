@@ -53,7 +53,7 @@ export default function DocsPage() {
       <Nav />
 
       {/* ── Dark hero header ─────────────────────────────────────────────── */}
-      <div style={S.hero}>
+      <div style={S.hero} className="vs-hero-section">
         <div style={S.heroInner}>
           <div style={S.heroBadge}>SDK DOCUMENTATION</div>
           <h1 style={S.heroTitle}>@veilsolver/sdk</h1>
@@ -71,7 +71,7 @@ export default function DocsPage() {
       </div>
 
       <main style={S.main}>
-        <div style={S.mainInner}>
+        <div style={S.mainInner} className="vs-main-inner">
 
           {/* ── Installation ────────────────────────────────────────────── */}
           <section style={S.section} id="install">
@@ -242,7 +242,7 @@ SolveResponse { plan, signature, attestation, auditRootHash }
          ↓
 submitSettlement() → VeilSolver.sol → DEX swap → receipt`} />
 
-            <div style={S.archGrid}>
+            <div style={S.archGrid} className="vs-docs-grid">
               {[
                 {
                   layer: "Client",
