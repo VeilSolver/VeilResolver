@@ -119,7 +119,7 @@ export default function StrategyPage() {
                 </div>
                 <div style={S.usageStep}>
                   <span style={S.usageArrow}>→</span>
-                  <span>Paste into Demo page "Strategy ID" field</span>
+                  <span>Paste into Demo page &quot;Strategy ID&quot; field</span>
                 </div>
                 <div style={S.usageStep}>
                   <span style={S.usageArrow}>→</span>

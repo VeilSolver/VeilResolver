@@ -3,7 +3,6 @@
 import { useEffect } from "react"
 import Link from "next/link"
 import ParticleBackground from "./components/ParticleBackground"
-import PathDrawing from "./components/PathDrawing"
 import CTAFooter from "./components/CTAFooter"
 
 // col-span per card: row1=[2,1]  row2=[1,2]  row3=[2,1]
