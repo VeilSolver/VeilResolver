@@ -1,4 +1,5 @@
 import Nav from "../components/Nav"
+import CTAFooter from "../components/CTAFooter"
 
 // ─── Code block component ─────────────────────────────────────────────────────
 function CodeBlock({ lang, code }: { lang: string; code: string }) {
@@ -37,52 +38,55 @@ function FnDoc({
   )
 }
 
+const QUICK_NAV = [
+  ["Installation",   "#install"],
+  ["Quick Start",    "#quickstart"],
+  ["buildIntent",    "#buildintent"],
+  ["uploadStrategy", "#strategy"],
+  ["Architecture",   "#arch"],
+]
+
 // ─── Page (server component — no interactivity needed) ────────────────────────
 export default function DocsPage() {
   return (
     <div style={S.root}>
       <Nav />
 
-      <main style={S.main}>
-        {/* Page header */}
-        <div style={S.pageHeader}>
-          <div style={S.pageTitleRow}>
-            <h1 style={S.pageTitle}>SDK Documentation</h1>
-            <span style={S.versionBadge}>@veilsolver/sdk v0.1.0</span>
-          </div>
-          <p style={S.pageSubtitle}>
-            TypeScript SDK for building MEV-resistant DeFi applications on 0G.
-            Two functions to integrate private intent execution into any protocol.
+      {/* ── Dark hero header ─────────────────────────────────────────────── */}
+      <div style={S.hero}>
+        <div style={S.heroInner}>
+          <div style={S.heroBadge}>SDK DOCUMENTATION</div>
+          <h1 style={S.heroTitle}>@veilsolver/sdk</h1>
+          <p style={S.heroSub}>
+            TypeScript SDK for MEV-resistant DeFi on 0G.
+            Two functions. Zero mempool exposure.
           </p>
-
-          {/* Quick nav */}
+          <div style={S.versionBadge}>v0.1.0</div>
           <div style={S.quickNav}>
-            {[
-              ["Installation",      "#install"],
-              ["Quick Start",       "#quickstart"],
-              ["buildIntent",       "#buildintent"],
-              ["uploadStrategy",    "#strategy"],
-              ["Architecture",      "#arch"],
-            ].map(([label, href]) => (
+            {QUICK_NAV.map(([label, href]) => (
               <a key={href} href={href} style={S.quickNavPill}>{label}</a>
             ))}
           </div>
         </div>
+      </div>
 
-        {/* ── Installation ────────────────────────────────────────────────── */}
-        <section style={S.section} id="install">
-          <SectionHeading id="install">Installation</SectionHeading>
-          <CodeBlock lang="bash" code={`npm install @veilsolver/sdk ethers`} />
-        </section>
+      <main style={S.main}>
+        <div style={S.mainInner}>
 
-        {/* ── Quick Start ─────────────────────────────────────────────────── */}
-        <section style={S.section} id="quickstart">
-          <SectionHeading id="quickstart">Quick Start</SectionHeading>
-          <p style={S.prose}>
-            Use <code style={S.inlineCode}>VeilSolverClient</code> for the full pipeline in a single call.
-            It handles encryption, TEE inference, plan signing, and on-chain settlement.
-          </p>
-          <CodeBlock lang="typescript" code={`import { VeilSolverClient } from "@veilsolver/sdk"
+          {/* ── Installation ────────────────────────────────────────────── */}
+          <section style={S.section} id="install">
+            <SectionHeading id="install">Installation</SectionHeading>
+            <CodeBlock lang="bash" code={`npm install @veilsolver/sdk ethers`} />
+          </section>
+
+          {/* ── Quick Start ─────────────────────────────────────────────── */}
+          <section style={S.section} id="quickstart">
+            <SectionHeading id="quickstart">Quick Start</SectionHeading>
+            <p style={S.prose}>
+              Use <code style={S.inlineCode}>VeilSolverClient</code> for the full pipeline in a single call.
+              It handles encryption, TEE inference, plan signing, and on-chain settlement.
+            </p>
+            <CodeBlock lang="typescript" code={`import { VeilSolverClient } from "@veilsolver/sdk"
 import { ethers } from "ethers"
 
 const solver = new VeilSolverClient({
@@ -103,23 +107,23 @@ const { solveResponse, receipt } = await solver.solve({
 
 console.log("tx:", receipt?.hash)
 console.log("min received:", solveResponse.plan.minAmountOut)`} />
-        </section>
+          </section>
 
-        {/* ── Individual functions ─────────────────────────────────────────── */}
-        <section style={S.section} id="buildintent">
-          <SectionHeading id="buildintent">Individual Functions</SectionHeading>
-          <p style={S.prose}>
-            For step-by-step control, use the individual functions directly.
-            All functions are pure TypeScript — no React dependency.
-          </p>
+          {/* ── Individual functions ─────────────────────────────────────── */}
+          <section style={S.section} id="buildintent">
+            <SectionHeading id="buildintent">Individual Functions</SectionHeading>
+            <p style={S.prose}>
+              For step-by-step control, use the individual functions directly.
+              All functions are pure TypeScript — no React dependency.
+            </p>
 
-          <FnDoc
-            name="buildIntent"
-            signature="buildIntent({ tokenIn, tokenOut, amountIn, decimalsIn, maxSlippageBps, userAddress, chainId, strategyId? })"
-            returns="TradingIntent"
-            description="Constructs a TradingIntent from human-readable parameters. Converts amountIn to wei string using decimalsIn. Generates a cryptographically random 32-byte nonce for replay protection. chainId prevents cross-chain replay attacks."
-          />
-          <CodeBlock lang="typescript" code={`import { buildIntent } from "@veilsolver/sdk"
+            <FnDoc
+              name="buildIntent"
+              signature="buildIntent({ tokenIn, tokenOut, amountIn, decimalsIn, maxSlippageBps, userAddress, chainId, strategyId? })"
+              returns="TradingIntent"
+              description="Constructs a TradingIntent from human-readable parameters. Converts amountIn to wei string using decimalsIn. Generates a cryptographically random 32-byte nonce for replay protection. chainId prevents cross-chain replay attacks."
+            />
+            <CodeBlock lang="typescript" code={`import { buildIntent } from "@veilsolver/sdk"
 
 const intent = buildIntent({
   tokenIn:        "0xUSDC...",
@@ -132,25 +136,25 @@ const intent = buildIntent({
   strategyId:     "0abc…"  // optional: 0G Storage root hash
 })`} />
 
-          <FnDoc
-            name="encryptIntent"
-            signature="encryptIntent(intent: TradingIntent, solverPublicKey: string)"
-            returns="Promise<string>"
-            description="Encrypts the intent using ECIES with the solver's enclave public key. Returns a hex-encoded ciphertext. The solver API receives this alongside the plaintext intent (used for routing) but cannot read the plaintext without the enclave private key."
-          />
-          <CodeBlock lang="typescript" code={`import { encryptIntent } from "@veilsolver/sdk"
+            <FnDoc
+              name="encryptIntent"
+              signature="encryptIntent(intent: TradingIntent, solverPublicKey: string)"
+              returns="Promise<string>"
+              description="Encrypts the intent using ECIES with the solver's enclave public key. Returns a hex-encoded ciphertext. The solver API receives this alongside the plaintext intent (used for routing) but cannot read the plaintext without the enclave private key."
+            />
+            <CodeBlock lang="typescript" code={`import { encryptIntent } from "@veilsolver/sdk"
 
 const SOLVER_PUBKEY = "0x039a5b81f4b2bc0c181b1292f3aeb55721de43dc7e3d07c6c44ba3aa08e7caae04"
 const encryptedIntent = await encryptIntent(intent, SOLVER_PUBKEY)
 // encryptedIntent: "0x04a3b9..." — ECIES ciphertext`} />
 
-          <FnDoc
-            name="callSolverAPI"
-            signature="callSolverAPI(intent: TradingIntent, encryptedIntent: string, apiUrl: string)"
-            returns="Promise<SolveResponse>"
-            description="POSTs to /solve with the intent and encrypted blob. The solver API forwards to 0G Compute (GLM-5-FP8 in Intel TDX), verifies the TEE attestation, signs the plan, stores the audit record to 0G Storage, and returns the full SolveResponse."
-          />
-          <CodeBlock lang="typescript" code={`import { callSolverAPI } from "@veilsolver/sdk"
+            <FnDoc
+              name="callSolverAPI"
+              signature="callSolverAPI(intent: TradingIntent, encryptedIntent: string, apiUrl: string)"
+              returns="Promise<SolveResponse>"
+              description="POSTs to /solve with the intent and encrypted blob. The solver API forwards to 0G Compute (GLM-5-FP8 in Intel TDX), verifies the TEE attestation, signs the plan, stores the audit record to 0G Storage, and returns the full SolveResponse."
+            />
+            <CodeBlock lang="typescript" code={`import { callSolverAPI } from "@veilsolver/sdk"
 
 const response = await callSolverAPI(
   intent,
@@ -163,13 +167,13 @@ const response = await callSolverAPI(
 // response.attestation  — { chatID, isVerified, provider, model, timestamp }
 // response.auditRootHash — 0G Storage root hash (empty string if storage failed)`} />
 
-          <FnDoc
-            name="submitSettlement"
-            signature="submitSettlement({ solveResult, contractAddress, signer })"
-            returns="Promise<TransactionReceipt | null>"
-            description="Approves ERC20 spend, then calls executePlan() on VeilSolver.sol. The contract verifies the ECDSA signature, checks the deadline and replay mapping, deducts the fee, and routes the swap through the DEX. Returns the ethers TransactionReceipt on success."
-          />
-          <CodeBlock lang="typescript" code={`import { submitSettlement } from "@veilsolver/sdk"
+            <FnDoc
+              name="submitSettlement"
+              signature="submitSettlement({ solveResult, contractAddress, signer })"
+              returns="Promise<TransactionReceipt | null>"
+              description="Approves ERC20 spend, then calls executePlan() on VeilSolver.sol. The contract verifies the ECDSA signature, checks the deadline and replay mapping, deducts the fee, and routes the swap through the DEX. Returns the ethers TransactionReceipt on success."
+            />
+            <CodeBlock lang="typescript" code={`import { submitSettlement } from "@veilsolver/sdk"
 
 const receipt = await submitSettlement({
   solveResult:     response,
@@ -179,17 +183,17 @@ const receipt = await submitSettlement({
 
 console.log("tx hash:", receipt?.hash)
 console.log("block:",   receipt?.blockNumber)`} />
-        </section>
+          </section>
 
-        {/* ── Strategy Registry ────────────────────────────────────────────── */}
-        <section style={S.section} id="strategy">
-          <SectionHeading id="strategy">Strategy Registry</SectionHeading>
-          <p style={S.prose}>
-            Upload private system prompts to 0G Storage. Each prompt is ECIES-encrypted before
-            upload — only the TEE can decrypt it. The returned <code style={S.inlineCode}>strategyId</code> is
-            the 0G Storage merkle root hash — safe to share publicly.
-          </p>
-          <CodeBlock lang="typescript" code={`import { VeilSolverClient } from "@veilsolver/sdk"
+          {/* ── Strategy Registry ────────────────────────────────────────── */}
+          <section style={S.section} id="strategy">
+            <SectionHeading id="strategy">Strategy Registry</SectionHeading>
+            <p style={S.prose}>
+              Upload private system prompts to 0G Storage. Each prompt is ECIES-encrypted before
+              upload — only the TEE can decrypt it. The returned <code style={S.inlineCode}>strategyId</code> is
+              the 0G Storage merkle root hash — safe to share publicly.
+            </p>
+            <CodeBlock lang="typescript" code={`import { VeilSolverClient } from "@veilsolver/sdk"
 
 const solver = new VeilSolverClient({ apiUrl, contractAddress, solverPublicKey })
 
@@ -208,27 +212,27 @@ const { receipt } = await solver.solve({
   signer
 })`} />
 
-          <div style={S.infoBox}>
-            <div style={S.infoBoxTitle}>Privacy guarantee</div>
-            <p style={S.infoBoxText}>
-              The encrypted blob is stored on 0G Storage. The <code style={S.inlineCodeDark}>strategyId</code> is
-              a content-addressed root hash — publicly retrievable, but the blob is ECIES encrypted.
-              The operator cannot read strategy contents. Only the TEE enclave can decrypt using its
-              private key — which never leaves the Intel TDX hardware boundary.
+            <div style={S.infoBox}>
+              <div style={S.infoBoxTitle}>Privacy guarantee</div>
+              <p style={S.infoBoxText}>
+                The encrypted blob is stored on 0G Storage. The <code style={S.inlineCodeDark}>strategyId</code> is
+                a content-addressed root hash — publicly retrievable, but the blob is ECIES encrypted.
+                The operator cannot read strategy contents. Only the TEE enclave can decrypt using its
+                private key — which never leaves the Intel TDX hardware boundary.
+              </p>
+            </div>
+          </section>
+
+          {/* ── Architecture ─────────────────────────────────────────────── */}
+          <section style={S.section} id="arch">
+            <SectionHeading id="arch">Architecture</SectionHeading>
+            <p style={S.prose}>
+              VeilSolver is a three-layer system. The client layer handles encryption and settlement.
+              The solver layer orchestrates TEE inference and storage. The chain layer enforces all
+              guarantees via smart contract.
             </p>
-          </div>
-        </section>
 
-        {/* ── Architecture ─────────────────────────────────────────────────── */}
-        <section style={S.section} id="arch">
-          <SectionHeading id="arch">Architecture</SectionHeading>
-          <p style={S.prose}>
-            VeilSolver is a three-layer system. The client layer handles encryption and settlement.
-            The solver layer orchestrates TEE inference and storage. The chain layer enforces all
-            guarantees via smart contract.
-          </p>
-
-          <CodeBlock lang="plaintext" code={`User → buildIntent() → encryptIntent() → POST /solve
+            <CodeBlock lang="plaintext" code={`User → buildIntent() → encryptIntent() → POST /solve
          ↓ (ECIES encrypted, unreadable to solver)
 Solver API → 0G Compute (GLM-5-FP8 in Intel TDX enclave)
          ↓ (execution plan computed inside enclave)
@@ -238,82 +242,88 @@ SolveResponse { plan, signature, attestation, auditRootHash }
          ↓
 submitSettlement() → VeilSolver.sol → DEX swap → receipt`} />
 
-          <div style={S.archGrid}>
-            {[
-              {
-                layer: "Client",
-                items: [
-                  "buildIntent() — TradingIntent from form values",
-                  "encryptIntent() — ECIES, local computation",
-                  "submitSettlement() — ERC20 approve + executePlan()",
-                ]
-              },
-              {
-                layer: "Solver API",
-                items: [
-                  "inference.ts — 0G Compute, broker singleton",
-                  "signer.ts — ECDSA plan hash (matches Solidity)",
-                  "storage.ts — 0G Storage audit trail",
-                ]
-              },
-              {
-                layer: "VeilSolver.sol",
-                items: [
-                  "ecrecover(planHash, sig) == solverKey",
-                  "executedIntents[hash] — replay protection",
-                  "minAmountOut enforced — MEV shield",
-                ]
-              },
-            ].map(card => (
-              <div key={card.layer} style={S.archCard}>
-                <div style={S.archLayer}>{card.layer}</div>
-                {card.items.map(item => (
-                  <div key={item} style={S.archItem}>
-                    <span style={S.archBullet}>›</span>
-                    <span style={S.archItemText}>{item}</span>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
+            <div style={S.archGrid}>
+              {[
+                {
+                  layer: "Client",
+                  items: [
+                    "buildIntent() — TradingIntent from form values",
+                    "encryptIntent() — ECIES, local computation",
+                    "submitSettlement() — ERC20 approve + executePlan()",
+                  ]
+                },
+                {
+                  layer: "Solver API",
+                  items: [
+                    "inference.ts — 0G Compute, broker singleton",
+                    "signer.ts — ECDSA plan hash (matches Solidity)",
+                    "storage.ts — 0G Storage audit trail",
+                  ]
+                },
+                {
+                  layer: "VeilSolver.sol",
+                  items: [
+                    "ecrecover(planHash, sig) == solverKey",
+                    "executedIntents[hash] — replay protection",
+                    "minAmountOut enforced — MEV shield",
+                  ]
+                },
+              ].map(card => (
+                <div key={card.layer} style={S.archCard}>
+                  <div style={S.archLayer}>{card.layer}</div>
+                  {card.items.map(item => (
+                    <div key={item} style={S.archItem}>
+                      <span style={S.archBullet}>›</span>
+                      <span style={S.archItemText}>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
 
-          {/* Security model table */}
-          <div style={S.tableWrap}>
-            <div style={S.tableTitle}>SECURITY MODEL</div>
-            <table style={S.table}>
-              <thead>
-                <tr>
-                  <th style={S.th}>Guarantee</th>
-                  <th style={S.th}>Enforcement</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  ["Intent contents private",    "ECIES encryption — only enclave key decrypts"],
-                  ["Strategy logic private",      "TeeML — host cannot read enclave memory"],
-                  ["Execution plan authentic",    "ECDSA — contract verifies via ecrecover"],
-                  ["Audit record immutable",      "0G Storage merkle root — content-addressed"],
-                  ["No replay",                  "On-chain mapping — EVM state is final"],
-                  ["MEV bounded",                "minAmountOut enforced by VeilSolver.sol"],
-                ].map(([g, e]) => (
-                  <tr key={g} style={S.tr}>
-                    <td style={S.td}>{g}</td>
-                    <td style={{ ...S.td, color: "#7c3aed" }}>{e}</td>
+            {/* Security model table */}
+            <div style={S.tableWrap}>
+              <div style={S.tableTitle}>SECURITY MODEL</div>
+              <table style={S.table}>
+                <thead>
+                  <tr>
+                    <th style={S.th}>Guarantee</th>
+                    <th style={S.th}>Enforcement</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+                </thead>
+                <tbody>
+                  {[
+                    ["Intent contents private",    "ECIES encryption — only enclave key decrypts"],
+                    ["Strategy logic private",      "TeeML — host cannot read enclave memory"],
+                    ["Execution plan authentic",    "ECDSA — contract verifies via ecrecover"],
+                    ["Audit record immutable",      "0G Storage merkle root — content-addressed"],
+                    ["No replay",                  "On-chain mapping — EVM state is final"],
+                    ["MEV bounded",                "minAmountOut enforced by VeilSolver.sol"],
+                  ].map(([g, e]) => (
+                    <tr key={g} style={S.tr}>
+                      <td style={S.td}>{g}</td>
+                      <td style={{ ...S.td, color: "#7c3aed" }}>{e}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
 
-        {/* Footer */}
-        <div style={S.docFooter}>
-          <span>VeilSolver · 0G APAC Hackathon 2026</span>
-          <span style={{ fontStyle: "italic", opacity: 0.6 }}>
-            Privacy is an architecture property, not a policy promise.
-          </span>
+          {/* Footer */}
+          <div style={S.docFooter}>
+            <span>VeilSolver · 0G APAC Hackathon 2026</span>
+            <span style={{ fontStyle: "italic", opacity: 0.6 }}>
+              Privacy is an architecture property, not a policy promise.
+            </span>
+          </div>
+
         </div>
       </main>
+
+      {/* ── CTA Footer ──────────────────────────────────────────────────────── */}
+      <CTAFooter />
+
     </div>
   )
 }
@@ -322,47 +332,55 @@ submitSettlement() → VeilSolver.sol → DEX swap → receipt`} />
 const S: Record<string, React.CSSProperties> = {
   root: {
     minHeight: "100vh",
-    background: "#f0e8d8",
+    background: "#f8f5ee",
     color: "#111111",
     fontFamily: "var(--font-mono), 'IBM Plex Mono', monospace",
   },
-  main: {
+
+  // ── Hero header ────────────────────────────────────────────────────────────
+  hero: {
+    background: "#111111",
+    padding: "108px 64px 52px",
+    width: "100%",
+  },
+  heroInner: {
     maxWidth: 900,
     margin: "0 auto",
-    padding: "36px 28px 80px",
   },
-
-  // Page header
-  pageHeader: { marginBottom: 52 },
-  pageTitleRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: 14,
-    marginBottom: 12,
-    flexWrap: "wrap" as const,
-  },
-  pageTitle: {
-    fontSize: 28,
+  heroBadge: {
+    fontSize: 10,
     fontWeight: 700,
-    color: "#111111",
-    letterSpacing: "-0.5px",
+    letterSpacing: "2.5px",
+    color: "rgba(255,255,255,0.3)",
+    marginBottom: 18,
+    textTransform: "uppercase" as const,
+  },
+  heroTitle: {
+    fontSize: "clamp(36px, 4.5vw, 56px)" as any,
+    fontWeight: 700,
+    color: "#ffffff",
+    letterSpacing: "-1px",
+    lineHeight: 1.05,
+    marginBottom: 14,
+  },
+  heroSub: {
+    fontSize: 15,
+    color: "rgba(255,255,255,0.4)",
+    lineHeight: 1.65,
+    marginBottom: 20,
+    maxWidth: 480,
   },
   versionBadge: {
+    display: "inline-block",
     fontSize: 11,
     fontWeight: 700,
-    color: "#7c3aed",
-    background: "rgba(124,58,237,0.06)",
-    border: "1px solid rgba(124,58,237,0.15)",
+    color: "rgba(255,255,255,0.4)",
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.1)",
     padding: "4px 10px",
     borderRadius: 4,
     letterSpacing: "0.3px",
-  },
-  pageSubtitle: {
-    fontSize: 14,
-    color: "rgba(17,17,17,0.5)",
-    lineHeight: 1.65,
-    maxWidth: 600,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   quickNav: {
     display: "flex",
@@ -372,15 +390,25 @@ const S: Record<string, React.CSSProperties> = {
   quickNavPill: {
     fontSize: 12,
     fontWeight: 500,
-    color: "#7c3aed",
-    background: "rgba(124,58,237,0.06)",
-    border: "1px solid rgba(124,58,237,0.15)",
+    color: "rgba(255,255,255,0.6)",
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.12)",
     padding: "6px 14px",
     borderRadius: 6,
     textDecoration: "none",
     letterSpacing: "0.2px",
-    transition: "all 0.15s",
     fontFamily: "var(--font-mono), 'IBM Plex Mono', monospace",
+  },
+
+  // ── Main content ───────────────────────────────────────────────────────────
+  main: {
+    background: "#f8f5ee",
+    width: "100%",
+  },
+  mainInner: {
+    maxWidth: 900,
+    margin: "0 auto",
+    padding: "52px 64px 80px",
   },
 
   // Sections
@@ -409,7 +437,7 @@ const S: Record<string, React.CSSProperties> = {
     fontFamily: "var(--font-mono), 'IBM Plex Mono', monospace",
   },
 
-  // Code blocks (dark — contrast sections)
+  // Code blocks
   codeWrap: {
     position: "relative",
     marginBottom: 20,
@@ -430,7 +458,7 @@ const S: Record<string, React.CSSProperties> = {
   },
   pre: {
     background: "#111111",
-    padding: "20px 20px 20px 20px",
+    padding: "20px 20px",
     margin: 0,
     overflowX: "auto" as const,
     lineHeight: 1.65,
@@ -447,7 +475,7 @@ const S: Record<string, React.CSSProperties> = {
     background: "#ffffff",
     border: "1px solid rgba(0,0,0,0.07)",
     borderRadius: 8,
-    boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+    boxShadow: "0 2px 16px rgba(0,0,0,0.05)",
     padding: "16px 18px",
     marginBottom: 12,
   },
@@ -527,7 +555,7 @@ const S: Record<string, React.CSSProperties> = {
     background: "#ffffff",
     border: "1px solid rgba(0,0,0,0.07)",
     borderRadius: 8,
-    boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+    boxShadow: "0 2px 16px rgba(0,0,0,0.05)",
     padding: "16px 16px 18px",
   },
   archLayer: {
@@ -548,7 +576,6 @@ const S: Record<string, React.CSSProperties> = {
   archBullet: {
     color: "rgba(124,58,237,0.4)",
     flexShrink: 0,
-    marginTop: 0,
   },
   archItemText: {
     fontSize: 11,
@@ -562,7 +589,7 @@ const S: Record<string, React.CSSProperties> = {
     background: "#ffffff",
     border: "1px solid rgba(0,0,0,0.07)",
     borderRadius: 8,
-    boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+    boxShadow: "0 2px 16px rgba(0,0,0,0.05)",
     overflow: "hidden",
   },
   tableTitle: {
@@ -611,4 +638,5 @@ const S: Record<string, React.CSSProperties> = {
     fontSize: 11,
     color: "rgba(17,17,17,0.25)",
   },
+
 }

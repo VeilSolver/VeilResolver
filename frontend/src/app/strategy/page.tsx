@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { uploadStrategy } from "@veilsolver/sdk"
 import Nav from "../components/Nav"
+import CTAFooter from "../components/CTAFooter"
 
 const API_URL       = process.env.NEXT_PUBLIC_SOLVER_API   ?? "http://localhost:4000"
 const SOLVER_PUBKEY = process.env.NEXT_PUBLIC_SOLVER_PUBKEY ?? ""
@@ -70,133 +71,144 @@ export default function StrategyPage() {
     <div style={S.root}>
       <Nav />
 
-      <main style={S.main}>
-        {/* Page header */}
-        <div style={S.pageHeader}>
-          <h1 style={S.pageTitle}>Strategy Registry</h1>
-          <p style={S.pageSubtitle}>
-            Upload a private system prompt. Encrypted before it leaves your browser.
-            Only the TEE can decrypt and use it — the operator never sees plaintext.
+      {/* ── Dark hero header ─────────────────────────────────────────────── */}
+      <div style={S.hero}>
+        <div style={S.heroInner}>
+          <div style={S.heroBadge}>STRATEGY REGISTRY</div>
+          <h1 style={S.heroTitle}>Upload Strategy</h1>
+          <p style={S.heroSub}>
+            Private system prompts. Encrypted before they leave your browser.
+            Only the TEE can decrypt and use them — the operator never sees plaintext.
           </p>
         </div>
+      </div>
 
-        <div style={S.layout}>
-          {/* ── Left column: how it works ──────────────────────────────────── */}
-          <div style={S.sidebar}>
-            <div style={S.sideCard}>
-              <div style={S.sideCardTitle}>HOW IT WORKS</div>
-              <div style={S.stepsCol}>
-                {HOW_IT_WORKS.map((step, i) => (
-                  <div key={step.num} style={S.miniStep}>
-                    <div style={S.miniStepNum}>{step.num}</div>
-                    <div style={S.miniStepBody}>
-                      <div style={S.miniStepTitle}>{step.title}</div>
-                      <div style={S.miniStepDesc}>{step.desc}</div>
+      <main style={S.main}>
+        <div style={S.mainInner}>
+          <div style={S.layout}>
+
+            {/* ── Left column: how it works ──────────────────────────────── */}
+            <div style={S.sidebar}>
+              <div style={S.sideCard}>
+                <div style={S.sideCardTitle}>HOW IT WORKS</div>
+                <div style={S.stepsCol}>
+                  {HOW_IT_WORKS.map((step, i) => (
+                    <div key={step.num} style={S.miniStep}>
+                      <div style={S.miniStepNum}>{step.num}</div>
+                      <div style={S.miniStepBody}>
+                        <div style={S.miniStepTitle}>{step.title}</div>
+                        <div style={S.miniStepDesc}>{step.desc}</div>
+                      </div>
+                      {i < HOW_IT_WORKS.length - 1 && <div style={S.miniStepLine} />}
                     </div>
-                    {i < HOW_IT_WORKS.length - 1 && <div style={S.miniStepLine} />}
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
+
+              {/* Usage tip */}
+              <div style={S.usageCard}>
+                <div style={S.sideCardTitle}>USING A STRATEGY</div>
+                <p style={S.usageText}>
+                  After uploading, copy the <span style={S.usageHighlight}>Strategy ID</span> and paste it
+                  into the optional field on the Demo page. The TEE will fetch your encrypted strategy,
+                  decrypt it inside the enclave, and use it as the system prompt for that trade.
+                </p>
+                <div style={S.usageStep}>
+                  <span style={S.usageArrow}>→</span>
+                  <span>Upload strategy here → get strategyId</span>
+                </div>
+                <div style={S.usageStep}>
+                  <span style={S.usageArrow}>→</span>
+                  <span>Paste into Demo page "Strategy ID" field</span>
+                </div>
+                <div style={S.usageStep}>
+                  <span style={S.usageArrow}>→</span>
+                  <span>TEE decrypts &amp; uses your custom rules</span>
+                </div>
               </div>
             </div>
 
-            {/* Usage tip */}
-            <div style={S.usageCard}>
-              <div style={S.sideCardTitle}>USING A STRATEGY</div>
-              <p style={S.usageText}>
-                After uploading, copy the <span style={S.usageHighlight}>Strategy ID</span> and paste it
-                into the optional field on the Demo page. The TEE will fetch your encrypted strategy,
-                decrypt it inside the enclave, and use it as the system prompt for that trade.
-              </p>
-              <div style={S.usageStep}>
-                <span style={S.usageArrow}>→</span>
-                <span>Upload strategy here → get strategyId</span>
-              </div>
-              <div style={S.usageStep}>
-                <span style={S.usageArrow}>→</span>
-                <span>Paste into Demo page "Strategy ID" field</span>
-              </div>
-              <div style={S.usageStep}>
-                <span style={S.usageArrow}>→</span>
-                <span>TEE decrypts &amp; uses your custom rules</span>
-              </div>
-            </div>
-          </div>
-
-          {/* ── Right column: upload card ──────────────────────────────────── */}
-          <div style={S.uploadCol}>
-            <div style={S.card}>
-              <div style={S.cardInner}>
-                <div style={S.cardHeader}>
-                  <span style={S.cardTitle}>Upload Strategy</span>
-                  <span style={S.privatePill}>ECIES ENCRYPTED</span>
-                </div>
-
-                <div style={S.fieldGroup}>
-                  <label style={S.fieldLabel}>SYSTEM PROMPT</label>
-                  <textarea
-                    style={S.textarea}
-                    value={prompt}
-                    onChange={e => setPrompt(e.target.value)}
-                    placeholder={PLACEHOLDER_PROMPT}
-                    rows={12}
-                  />
-                  <div style={S.charCount}>
-                    {prompt.length} chars
+            {/* ── Right column: upload card ──────────────────────────────── */}
+            <div style={S.uploadCol}>
+              <div style={S.card}>
+                <div style={S.cardInner}>
+                  <div style={S.cardHeader}>
+                    <span style={S.cardTitle}>Upload Strategy</span>
+                    <span style={S.privatePill}>ECIES ENCRYPTED</span>
                   </div>
-                </div>
 
-                <button
-                  className={!uploading && prompt.trim() ? "solve-btn-idle" : ""}
-                  style={uploading ? S.btnRunning : !prompt.trim() ? S.btnDisabled : S.btnPrimary}
-                  onClick={handleUpload}
-                  disabled={!prompt.trim() || uploading}
-                >
-                  {uploading ? (
-                    <><span className="spinner" style={{ fontSize: 16 }}>◌</span> Encrypting &amp; uploading…</>
-                  ) : (
-                    <><span style={{ fontSize: 16 }}>⬡</span> Upload Strategy</>
+                  <div style={S.fieldGroup}>
+                    <label style={S.fieldLabel}>SYSTEM PROMPT</label>
+                    <textarea
+                      style={S.textarea}
+                      value={prompt}
+                      onChange={e => setPrompt(e.target.value)}
+                      placeholder={PLACEHOLDER_PROMPT}
+                      rows={12}
+                    />
+                    <div style={S.charCount}>
+                      {prompt.length} chars
+                    </div>
+                  </div>
+
+                  <button
+                    className={!uploading && prompt.trim() ? "solve-btn-idle" : ""}
+                    style={uploading ? S.btnRunning : !prompt.trim() ? S.btnDisabled : S.btnPrimary}
+                    onClick={handleUpload}
+                    disabled={!prompt.trim() || uploading}
+                  >
+                    {uploading ? (
+                      <><span className="spinner" style={{ fontSize: 16 }}>◌</span> Encrypting &amp; uploading…</>
+                    ) : (
+                      <><span style={{ fontSize: 16 }}>⬡</span> Upload Strategy</>
+                    )}
+                  </button>
+
+                  {error && (
+                    <div style={S.errorBox}>
+                      <span style={{ flexShrink: 0 }}>⚠</span> {error}
+                    </div>
                   )}
-                </button>
 
-                {error && (
-                  <div style={S.errorBox}>
-                    <span style={{ flexShrink: 0 }}>⚠</span> {error}
+                  {/* Success state */}
+                  {strategyId && (
+                    <div className="result-card" style={S.successCard}>
+                      <div style={S.successHeader}>
+                        <span style={S.successTitle}>✓ Strategy Uploaded</span>
+                        <span style={S.successBadge}>STORED ON 0G</span>
+                      </div>
+
+                      <div style={S.fieldLabel}>STRATEGY ID (0G STORAGE ROOT HASH)</div>
+                      <div style={S.idBox} onClick={handleCopy} title="Click to copy">
+                        <span style={S.idText}>{strategyId}</span>
+                        <span style={copied ? S.copyDone : S.copyHint}>
+                          {copied ? "✓ copied" : "copy"}
+                        </span>
+                      </div>
+
+                      <div style={S.successNote}>
+                        This ID is your strategy&apos;s retrieval key. It&apos;s public-safe —
+                        the blob is ECIES encrypted, only the TEE can decrypt it.
+                        Paste it into the Demo page to activate your strategy.
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={S.privacyNote}>
+                    <span style={{ fontSize: 11, flexShrink: 0 }}>🔒</span>
+                    Encrypted with ECIES before upload · stored on 0G Storage · only TEE decrypts
                   </div>
-                )}
-
-                {/* Success state */}
-                {strategyId && (
-                  <div className="result-card" style={S.successCard}>
-                    <div style={S.successHeader}>
-                      <span style={S.successTitle}>✓ Strategy Uploaded</span>
-                      <span style={S.successBadge}>STORED ON 0G</span>
-                    </div>
-
-                    <div style={S.fieldLabel}>STRATEGY ID (0G STORAGE ROOT HASH)</div>
-                    <div style={S.idBox} onClick={handleCopy} title="Click to copy">
-                      <span style={S.idText}>{strategyId}</span>
-                      <span style={copied ? S.copyDone : S.copyHint}>
-                        {copied ? "✓ copied" : "copy"}
-                      </span>
-                    </div>
-
-                    <div style={S.successNote}>
-                      This ID is your strategy&apos;s retrieval key. It&apos;s public-safe —
-                      the blob is ECIES encrypted, only the TEE can decrypt it.
-                      Paste it into the Demo page to activate your strategy.
-                    </div>
-                  </div>
-                )}
-
-                <div style={S.privacyNote}>
-                  <span style={{ fontSize: 11, flexShrink: 0 }}>🔒</span>
-                  Encrypted with ECIES before upload · stored on 0G Storage · only TEE decrypts
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </main>
+
+      {/* ── CTA Footer ──────────────────────────────────────────────────────── */}
+      <CTAFooter />
+
     </div>
   )
 }
@@ -205,31 +217,55 @@ export default function StrategyPage() {
 const S: Record<string, React.CSSProperties> = {
   root: {
     minHeight: "100vh",
-    background: "#f0e8d8",
+    background: "#f8f5ee",
     color: "#111111",
     fontFamily: "var(--font-mono), 'IBM Plex Mono', monospace",
   },
-  main: {
+
+  // ── Hero header ────────────────────────────────────────────────────────────
+  hero: {
+    background: "#111111",
+    padding: "108px 64px 52px",
+    width: "100%",
+  },
+  heroInner: {
     maxWidth: 1040,
     margin: "0 auto",
-    padding: "36px 28px 64px",
   },
-  pageHeader: {
-    marginBottom: 40,
-    maxWidth: 680,
-  },
-  pageTitle: {
-    fontSize: 28,
+  heroBadge: {
+    fontSize: 10,
     fontWeight: 700,
-    color: "#111111",
-    letterSpacing: "-0.5px",
-    marginBottom: 10,
+    letterSpacing: "2.5px",
+    color: "rgba(255,255,255,0.3)",
+    marginBottom: 18,
+    textTransform: "uppercase" as const,
   },
-  pageSubtitle: {
-    fontSize: 13,
-    color: "rgba(17,17,17,0.4)",
+  heroTitle: {
+    fontSize: "clamp(40px, 5vw, 64px)" as any,
+    fontWeight: 700,
+    color: "#ffffff",
+    letterSpacing: "-1px",
+    lineHeight: 1.05,
+    marginBottom: 14,
+  },
+  heroSub: {
+    fontSize: 15,
+    color: "rgba(255,255,255,0.4)",
     lineHeight: 1.65,
+    maxWidth: 560,
   },
+
+  // ── Main content ───────────────────────────────────────────────────────────
+  main: {
+    background: "#f8f5ee",
+    width: "100%",
+  },
+  mainInner: {
+    maxWidth: 1040,
+    margin: "0 auto",
+    padding: "40px 64px 80px",
+  },
+
   layout: {
     display: "grid",
     gridTemplateColumns: "320px 1fr",
@@ -246,8 +282,8 @@ const S: Record<string, React.CSSProperties> = {
   sideCard: {
     background: "#ffffff",
     border: "1px solid rgba(0,0,0,0.07)",
-    borderRadius: 12,
-    boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+    borderRadius: 14,
+    boxShadow: "0 2px 16px rgba(0,0,0,0.05)",
     padding: "20px 20px 24px",
   },
   sideCardTitle: {
@@ -308,8 +344,8 @@ const S: Record<string, React.CSSProperties> = {
   usageCard: {
     background: "#ffffff",
     border: "1px solid rgba(0,0,0,0.07)",
-    borderRadius: 12,
-    boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+    borderRadius: 14,
+    boxShadow: "0 2px 16px rgba(0,0,0,0.05)",
     padding: "20px 20px 22px",
   },
   usageText: {
@@ -341,8 +377,8 @@ const S: Record<string, React.CSSProperties> = {
   card: {
     background: "#ffffff",
     border: "1px solid rgba(0,0,0,0.07)",
-    borderRadius: 12,
-    boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+    borderRadius: 14,
+    boxShadow: "0 2px 16px rgba(0,0,0,0.05)",
     overflow: "hidden",
   },
   cardInner:  { padding: "24px 28px 28px" },
@@ -463,4 +499,5 @@ const S: Record<string, React.CSSProperties> = {
     lineHeight: 1.5, letterSpacing: "0.3px",
     display: "flex", gap: 6, alignItems: "flex-start",
   },
+
 }

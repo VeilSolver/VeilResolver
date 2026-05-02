@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import Link from "next/link"
 import ParticleBackground from "./components/ParticleBackground"
 import PathDrawing from "./components/PathDrawing"
+import CTAFooter from "./components/CTAFooter"
 
 // col-span per card: row1=[2,1]  row2=[1,2]  row3=[2,1]
 const CAP_SPANS = [2, 1, 1, 2, 2, 1]
@@ -373,24 +374,9 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          CTA — robot video full-width, text overlay left
+          CTA — shared footer
       ════════════════════════════════════════════════════════════════════════ */}
-      <div style={S.ctaStrip}>
-        <video src="/12788076_3840_2160_24fps.mp4" autoPlay muted loop playsInline style={S.stripVideo} />
-        <div style={S.ctaOverlay} />
-        <div style={S.ctaContent}>
-          <div style={{ ...S.sectionBadge, color: "rgba(255,255,255,0.5)" }}>GET STARTED</div>
-          <h2 style={S.ctaHeading}>Ready to build?</h2>
-          <p style={S.ctaSubtext}>Private intent solver. Two-line SDK. No mempool exposure.</p>
-          <div style={S.ctaButtons}>
-            <Link href="/demo" style={S.ctaPrimaryWhite}>
-              <span style={{ fontSize: 16 }}>⬡</span> Launch Demo
-            </Link>
-            <Link href="/docs" style={S.ctaGhostWhite}>Read the Docs</Link>
-          </div>
-          <div style={S.ctaNote}>VeilSolver · 0G APAC Hackathon 2026</div>
-        </div>
-      </div>
+      <CTAFooter />
 
     </main>
   )

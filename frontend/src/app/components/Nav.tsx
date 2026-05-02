@@ -60,23 +60,27 @@ export default function Nav({ address, onConnect }: NavProps) {
 
 const S: Record<string, React.CSSProperties> = {
   header: {
-    position: "sticky",
-    top: 0,
+    position: "fixed",
+    top: 20,
+    left: "50%",
+    transform: "translateX(-50%)",
     zIndex: 100,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    height: 56,
-    padding: "0 32px",
-    background: "rgba(240,232,216,0.92)",
-    backdropFilter: "blur(12px)",
-    WebkitBackdropFilter: "blur(12px)",
-    borderBottom: "1px solid rgba(0,0,0,0.08)",
+    height: 64,
+    padding: "0 28px",
+    background: "rgba(248,245,238,0.55)",
+    backdropFilter: "blur(16px)",
+    WebkitBackdropFilter: "blur(16px)",
+    border: "1px solid rgba(0,0,0,0.08)",
+    borderRadius: 14,
+    width: "clamp(500px, 48%, 720px)",
+    gap: 8,
   },
   left: {
     display: "flex",
     alignItems: "center",
-    minWidth: 160,
   },
   logoLink: {
     display: "flex",
@@ -90,7 +94,7 @@ const S: Record<string, React.CSSProperties> = {
     color: "#111111",
   },
   logoText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 700,
     color: "#111111",
     letterSpacing: "-0.3px",
@@ -134,8 +138,6 @@ const S: Record<string, React.CSSProperties> = {
   right: {
     display: "flex",
     alignItems: "center",
-    gap: 10,
-    minWidth: 160,
     justifyContent: "flex-end",
   },
   walletChip: {
@@ -154,7 +156,7 @@ const S: Record<string, React.CSSProperties> = {
     background: "#111111",
   },
   walletAddr: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#111111",
     fontFamily: "var(--font-mono), 'IBM Plex Mono', monospace",
   },
@@ -169,6 +171,5 @@ const S: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     fontFamily: "var(--font-mono), 'IBM Plex Mono', monospace",
     letterSpacing: "0.3px",
-    transition: "all 0.2s ease",
   },
 }

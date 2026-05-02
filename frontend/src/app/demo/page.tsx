@@ -5,6 +5,7 @@ import { ethers } from "ethers"
 import { buildIntent, encryptIntent, callSolverAPI, submitSettlement } from "@veilsolver/sdk"
 import type { SolveResponse } from "@veilsolver/sdk"
 import Nav from "../components/Nav"
+import CTAFooter from "../components/CTAFooter"
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const API_URL        = process.env.NEXT_PUBLIC_SOLVER_API       ?? "http://localhost:4000"
@@ -212,268 +213,276 @@ export default function DemoPage() {
     <div style={S.root}>
       <Nav address={address} onConnect={connectWallet} />
 
-      <main style={S.main}>
-        {/* ── Page header ─────────────────────────────────────────────────── */}
-        <div style={S.pageHeader}>
-          <div>
-            <h1 style={S.pageTitle}>Trade Demo</h1>
-            <p style={S.pageSubtitle}>
-              Submit an encrypted intent · TEE computes execution plan · settle on 0G Chain
-            </p>
-          </div>
-          <div style={S.trackBadge}>TRACK 5 — PRIVACY &amp; SOVEREIGN INFRA</div>
+      {/* ── Dark hero header ─────────────────────────────────────────────── */}
+      <div style={S.hero}>
+        <div style={S.heroInner}>
+          <div style={S.heroBadge}>TRADE DEMO</div>
+          <h1 style={S.heroTitle}>Submit Intent</h1>
+          <p style={S.heroSub}>
+            Encrypted intents · TEE-computed execution plans · atomic settlement on 0G Chain
+          </p>
+          <div style={S.trackPill}>TRACK 5 — PRIVACY &amp; SOVEREIGN INFRA</div>
         </div>
+      </div>
 
-        {/* ── 2-col grid ──────────────────────────────────────────────────── */}
-        <div style={S.grid}>
+      <main style={S.main}>
+        <div style={S.mainInner}>
 
-          {/* ─ Left: Form ─────────────────────────────────────────────────── */}
-          <div style={S.card}>
-            <div style={S.cardInner}>
-              <div style={S.cardHeader}>
-                <span style={S.cardTitle}>Submit Intent</span>
-                <span style={S.privatePill}>PRIVATE</span>
-              </div>
-              <p style={S.cardSub}>
-                Intent encrypted ECIES client-side. Solver never reads plaintext.
-              </p>
+          {/* ── 2-col grid ────────────────────────────────────────────────── */}
+          <div style={S.grid}>
 
-              {/* Sell */}
-              <div style={S.fieldGroup}>
-                <label style={S.fieldLabel}>SELL</label>
-                <div style={S.tokenRow}>
-                  <input
-                    style={S.amountInput}
-                    type="number"
-                    value={amount}
-                    onChange={e => setAmount(e.target.value)}
-                    placeholder="0.00"
-                  />
+            {/* ─ Left: Form ─────────────────────────────────────────────── */}
+            <div style={S.card}>
+              <div style={S.cardInner}>
+                <div style={S.cardHeader}>
+                  <span style={S.cardTitle}>Submit Intent</span>
+                  <span style={S.privatePill}>PRIVATE</span>
+                </div>
+                <p style={S.cardSub}>
+                  Intent encrypted ECIES client-side. Solver never reads plaintext.
+                </p>
+
+                {/* Sell */}
+                <div style={S.fieldGroup}>
+                  <label style={S.fieldLabel}>SELL</label>
+                  <div style={S.tokenRow}>
+                    <input
+                      style={S.amountInput}
+                      type="number"
+                      value={amount}
+                      onChange={e => setAmount(e.target.value)}
+                      placeholder="0.00"
+                    />
+                    <div style={S.tokenSelectWrap}>
+                      <select
+                        style={S.tokenSelect}
+                        value={tokenIn.symbol}
+                        onChange={e => setTokenIn(TOKENS.find(t => t.symbol === e.target.value)!)}
+                      >
+                        {tokenInOptions.map(t => (
+                          <option key={t.symbol} value={t.symbol}>{t.icon} {t.symbol}</option>
+                        ))}
+                      </select>
+                      <span style={S.selectArrow}>▾</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div style={S.swapDivider}>
+                  <div style={S.swapLine} />
+                  <div style={S.swapIcon}>↓</div>
+                  <div style={S.swapLine} />
+                </div>
+
+                {/* Buy */}
+                <div style={S.fieldGroup}>
+                  <label style={S.fieldLabel}>BUY</label>
                   <div style={S.tokenSelectWrap}>
                     <select
-                      style={S.tokenSelect}
-                      value={tokenIn.symbol}
-                      onChange={e => setTokenIn(TOKENS.find(t => t.symbol === e.target.value)!)}
+                      style={{ ...S.tokenSelect, width: "100%" }}
+                      value={tokenOut.symbol}
+                      onChange={e => setTokenOut(TOKENS.find(t => t.symbol === e.target.value)!)}
                     >
-                      {tokenInOptions.map(t => (
+                      {tokenOutOptions.map(t => (
                         <option key={t.symbol} value={t.symbol}>{t.icon} {t.symbol}</option>
                       ))}
                     </select>
                     <span style={S.selectArrow}>▾</span>
                   </div>
                 </div>
-              </div>
 
-              {/* Divider */}
-              <div style={S.swapDivider}>
-                <div style={S.swapLine} />
-                <div style={S.swapIcon}>↓</div>
-                <div style={S.swapLine} />
-              </div>
-
-              {/* Buy */}
-              <div style={S.fieldGroup}>
-                <label style={S.fieldLabel}>BUY</label>
-                <div style={S.tokenSelectWrap}>
-                  <select
-                    style={{ ...S.tokenSelect, width: "100%" }}
-                    value={tokenOut.symbol}
-                    onChange={e => setTokenOut(TOKENS.find(t => t.symbol === e.target.value)!)}
-                  >
-                    {tokenOutOptions.map(t => (
-                      <option key={t.symbol} value={t.symbol}>{t.icon} {t.symbol}</option>
+                {/* Slippage */}
+                <div style={S.fieldGroup}>
+                  <label style={S.fieldLabel}>MAX SLIPPAGE</label>
+                  <div style={S.slipRow}>
+                    {[25, 50, 100, 150].map(bps => (
+                      <button
+                        key={bps}
+                        style={slippage === String(bps) ? S.slipActive : S.slipBtn}
+                        onClick={() => setSlippage(String(bps))}
+                      >
+                        {(bps / 100).toFixed(2)}%
+                      </button>
                     ))}
-                  </select>
-                  <span style={S.selectArrow}>▾</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Slippage */}
-              <div style={S.fieldGroup}>
-                <label style={S.fieldLabel}>MAX SLIPPAGE</label>
-                <div style={S.slipRow}>
-                  {[25, 50, 100, 150].map(bps => (
-                    <button
-                      key={bps}
-                      style={slippage === String(bps) ? S.slipActive : S.slipBtn}
-                      onClick={() => setSlippage(String(bps))}
-                    >
-                      {(bps / 100).toFixed(2)}%
-                    </button>
-                  ))}
+                {/* Strategy ID */}
+                <div style={S.fieldGroup}>
+                  <label style={S.fieldLabel}>STRATEGY ID (OPTIONAL)</label>
+                  <input
+                    style={{ ...S.amountInput, fontSize: 11, padding: "9px 12px" }}
+                    type="text"
+                    value={usedStrategyId}
+                    onChange={e => setUsedStrategyId(e.target.value)}
+                    placeholder="0G Storage root hash…"
+                  />
                 </div>
-              </div>
 
-              {/* Strategy ID */}
-              <div style={S.fieldGroup}>
-                <label style={S.fieldLabel}>STRATEGY ID (OPTIONAL)</label>
-                <input
-                  style={{ ...S.amountInput, fontSize: 11, padding: "9px 12px" }}
-                  type="text"
-                  value={usedStrategyId}
-                  onChange={e => setUsedStrategyId(e.target.value)}
-                  placeholder="0G Storage root hash…"
-                />
-              </div>
+                {/* Solve button */}
+                <button
+                  className={!running && address ? "solve-btn-idle" : ""}
+                  style={!address ? S.solveDisabled : running ? S.solveRunning : S.solvePrimary}
+                  onClick={handleSolve}
+                  disabled={!address || running}
+                >
+                  {running ? (
+                    <><span className="spinner" style={{ fontSize: 16 }}>◌</span> Solving…</>
+                  ) : !address ? (
+                    "Connect wallet to continue"
+                  ) : (
+                    <><span style={{ fontSize: 16 }}>⬡</span> Solve &amp; Execute</>
+                  )}
+                </button>
 
-              {/* Solve button */}
-              <button
-                className={!running && address ? "solve-btn-idle" : ""}
-                style={!address ? S.solveDisabled : running ? S.solveRunning : S.solvePrimary}
-                onClick={handleSolve}
-                disabled={!address || running}
-              >
-                {running ? (
-                  <><span className="spinner" style={{ fontSize: 16 }}>◌</span> Solving…</>
-                ) : !address ? (
-                  "Connect wallet to continue"
-                ) : (
-                  <><span style={{ fontSize: 16 }}>⬡</span> Solve &amp; Execute</>
+                {error && (
+                  <div style={S.errorBox}>
+                    <span style={{ flexShrink: 0 }}>⚠</span> {error}
+                  </div>
                 )}
-              </button>
 
-              {error && (
-                <div style={S.errorBox}>
-                  <span style={{ flexShrink: 0 }}>⚠</span> {error}
+                <div style={S.privacyNote}>
+                  <span style={{ fontSize: 11, flexShrink: 0 }}>🔒</span>
+                  Intent encrypted client-side · Strategy computed inside TEE · Solver never reads plaintext
                 </div>
-              )}
-
-              <div style={S.privacyNote}>
-                <span style={{ fontSize: 11, flexShrink: 0 }}>🔒</span>
-                Intent encrypted client-side · Strategy computed inside TEE · Solver never reads plaintext
               </div>
             </div>
-          </div>
 
-          {/* ─ Right: Execution Trace ─────────────────────────────────────── */}
-          <div style={S.card}>
-            <div style={S.cardInner}>
-              <div style={S.cardHeader}>
-                <span style={S.cardTitle}>Execution Trace</span>
-                <span style={solved ? S.pillGreen : running ? S.pillLive : S.cardPill}>
-                  {solved ? "COMPLETE" : running ? "LIVE" : "READY"}
-                </span>
-              </div>
-              <p style={S.cardSub}>
-                Every step cryptographically attested on 0G infrastructure.
-              </p>
+            {/* ─ Right: Execution Trace ─────────────────────────────────── */}
+            <div style={S.card}>
+              <div style={S.cardInner}>
+                <div style={S.cardHeader}>
+                  <span style={S.cardTitle}>Execution Trace</span>
+                  <span style={solved ? S.pillGreen : running ? S.pillLive : S.cardPill}>
+                    {solved ? "COMPLETE" : running ? "LIVE" : "READY"}
+                  </span>
+                </div>
+                <p style={S.cardSub}>
+                  Every step cryptographically attested on 0G infrastructure.
+                </p>
 
-              {/* Steps */}
-              <div style={S.stepList}>
-                {steps.map((step, i) => (
-                  <div key={step.id} style={S.stepRow}>
-                    <div style={S.connectorCol}>
-                      <div
-                        style={dotCss(step.status)}
-                        className={step.status === "active" ? "step-active-dot" : ""}
-                      >
-                        {step.status === "done"   ? <span style={{ fontSize: 13, fontWeight: 700 }}>✓</span>  :
-                         step.status === "error"  ? <span style={{ fontSize: 13, fontWeight: 700 }}>✗</span>  :
-                         step.status === "active" ? <span className="spinner" style={{ fontSize: 12 }}>◌</span> :
-                         <span style={{ fontSize: 12, fontWeight: 700 }}>{i + 1}</span>}
-                      </div>
-                      {i < steps.length - 1 && (
-                        <div style={connectorCss(step.status, steps[i + 1].status)} />
-                      )}
-                    </div>
-                    <div style={S.stepContent}>
-                      <div style={labelCss(step.status)}>{step.label}</div>
-                      <div style={S.stepDetail}>
-                        {step.detail}
-                        {step.link && (
-                          <a href={step.link} target="_blank" rel="noopener noreferrer" style={S.stepLink}>
-                            {" "}↗
-                          </a>
+                {/* Steps */}
+                <div style={S.stepList}>
+                  {steps.map((step, i) => (
+                    <div key={step.id} style={S.stepRow}>
+                      <div style={S.connectorCol}>
+                        <div
+                          style={dotCss(step.status)}
+                          className={step.status === "active" ? "step-active-dot" : ""}
+                        >
+                          {step.status === "done"   ? <span style={{ fontSize: 13, fontWeight: 700 }}>✓</span>  :
+                           step.status === "error"  ? <span style={{ fontSize: 13, fontWeight: 700 }}>✗</span>  :
+                           step.status === "active" ? <span className="spinner" style={{ fontSize: 12 }}>◌</span> :
+                           <span style={{ fontSize: 12, fontWeight: 700 }}>{i + 1}</span>}
+                        </div>
+                        {i < steps.length - 1 && (
+                          <div style={connectorCss(step.status, steps[i + 1].status)} />
                         )}
                       </div>
-                      {step.status === "active" && (
-                        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, overflow: "hidden" }}>
-                          <div className="scan-line" />
+                      <div style={S.stepContent}>
+                        <div style={labelCss(step.status)}>{step.label}</div>
+                        <div style={S.stepDetail}>
+                          {step.detail}
+                          {step.link && (
+                            <a href={step.link} target="_blank" rel="noopener noreferrer" style={S.stepLink}>
+                              {" "}↗
+                            </a>
+                          )}
                         </div>
+                        {step.status === "active" && (
+                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, overflow: "hidden" }}>
+                            <div className="scan-line" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Result card */}
+                {solved && solveResult && (
+                  <div className="result-card" style={S.resultCard}>
+                    <div style={S.resultHeader}>
+                      <span style={S.resultTitle}>✓ Execution Complete</span>
+                      {txHash && (
+                        <a
+                          href={`https://chainscan-galileo.0g.ai/tx/${txHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={S.viewTxBtn}
+                        >
+                          ChainScan ↗
+                        </a>
                       )}
                     </div>
+                    <div style={S.resultGrid}>
+                      <div style={S.resultItem}>
+                        <span style={S.resultKey}>RECEIVED (MIN)</span>
+                        <span style={S.resultValBig}>
+                          {formatAmount(solveResult.plan.minAmountOut, tokenOut.decimals)} {tokenOut.symbol}
+                        </span>
+                      </div>
+                      <div style={S.resultItem}>
+                        <span style={S.resultKey}>MEV PROTECTED</span>
+                        <span style={{ ...S.resultVal, color: "#16a34a" }}>YES</span>
+                      </div>
+                      <div style={S.resultItem}>
+                        <span style={S.resultKey}>TEE VERIFIED</span>
+                        <span style={{ ...S.resultVal, color: solveResult.attestation.isVerified ? "#16a34a" : "#ca8a04" }}>
+                          {solveResult.attestation.isVerified ? "YES" : "PARTIAL"}
+                        </span>
+                      </div>
+                      <div style={S.resultItem}>
+                        <span style={S.resultKey}>AUDIT TRAIL</span>
+                        <span style={{ ...S.resultVal, color: "#7c3aed" }}>
+                          {solveResult.auditRootHash ? "0G Storage" : "Skipped"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+          </div>
+
+          {/* ── Attestation card (full width) ──────────────────────────────── */}
+          {solved && solveResult && (
+            <div className="result-card" style={S.attestCard}>
+              <div style={S.attestHeader}>
+                <span style={S.attestTitle}>TEE Attestation Details</span>
+                <span style={solveResult.attestation.isVerified ? S.attestBadgeGreen : S.attestBadgeYellow}>
+                  {solveResult.attestation.isVerified ? "VERIFIED" : "UNVERIFIED"} · {solveResult.attestation.model} · 0G AI Router
+                </span>
+              </div>
+              <div style={S.attestGrid}>
+                {[
+                  ["MODEL",      solveResult.attestation.model],
+                  ["PROVIDER",   solveResult.attestation.provider.slice(0, 18) + "…"],
+                  ["CHAT ID",    solveResult.attestation.chatID
+                                   ? solveResult.attestation.chatID.slice(0, 24) + "…"
+                                   : "N/A"],
+                  ["VERIFIED",   solveResult.attestation.isVerified ? "✓ TeeML" : "⚠ Unverified"],
+                  ["AUDIT HASH", solveResult.auditRootHash
+                                   ? solveResult.auditRootHash.slice(0, 24) + "…"
+                                   : "—"],
+                  ["TIMESTAMP",  new Date(solveResult.attestation.timestamp).toISOString()],
+                ].map(([k, v]) => (
+                  <div key={k} style={S.attestItem}>
+                    <div style={S.attestKey}>{k}</div>
+                    <div style={S.attestVal}>{v}</div>
                   </div>
                 ))}
               </div>
-
-              {/* Result card */}
-              {solved && solveResult && (
-                <div className="result-card" style={S.resultCard}>
-                  <div style={S.resultHeader}>
-                    <span style={S.resultTitle}>✓ Execution Complete</span>
-                    {txHash && (
-                      <a
-                        href={`https://chainscan-galileo.0g.ai/tx/${txHash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={S.viewTxBtn}
-                      >
-                        ChainScan ↗
-                      </a>
-                    )}
-                  </div>
-                  <div style={S.resultGrid}>
-                    <div style={S.resultItem}>
-                      <span style={S.resultKey}>RECEIVED (MIN)</span>
-                      <span style={S.resultValBig}>
-                        {formatAmount(solveResult.plan.minAmountOut, tokenOut.decimals)} {tokenOut.symbol}
-                      </span>
-                    </div>
-                    <div style={S.resultItem}>
-                      <span style={S.resultKey}>MEV PROTECTED</span>
-                      <span style={{ ...S.resultVal, color: "#16a34a" }}>YES</span>
-                    </div>
-                    <div style={S.resultItem}>
-                      <span style={S.resultKey}>TEE VERIFIED</span>
-                      <span style={{ ...S.resultVal, color: solveResult.attestation.isVerified ? "#16a34a" : "#ca8a04" }}>
-                        {solveResult.attestation.isVerified ? "YES" : "PARTIAL"}
-                      </span>
-                    </div>
-                    <div style={S.resultItem}>
-                      <span style={S.resultKey}>AUDIT TRAIL</span>
-                      <span style={{ ...S.resultVal, color: "#7c3aed" }}>
-                        {solveResult.auditRootHash ? "0G Storage" : "Skipped"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
-          </div>
+          )}
 
         </div>
-
-        {/* ── Attestation card (full width) ────────────────────────────────── */}
-        {solved && solveResult && (
-          <div className="result-card" style={S.attestCard}>
-            <div style={S.attestHeader}>
-              <span style={S.attestTitle}>TEE Attestation Details</span>
-              <span style={solveResult.attestation.isVerified ? S.attestBadgeGreen : S.attestBadgeYellow}>
-                {solveResult.attestation.isVerified ? "VERIFIED" : "UNVERIFIED"} · {solveResult.attestation.model} · 0G AI Router
-              </span>
-            </div>
-            <div style={S.attestGrid}>
-              {[
-                ["MODEL",      solveResult.attestation.model],
-                ["PROVIDER",   solveResult.attestation.provider.slice(0, 18) + "…"],
-                ["CHAT ID",    solveResult.attestation.chatID
-                                 ? solveResult.attestation.chatID.slice(0, 24) + "…"
-                                 : "N/A"],
-                ["VERIFIED",   solveResult.attestation.isVerified ? "✓ TeeML" : "⚠ Unverified"],
-                ["AUDIT HASH", solveResult.auditRootHash
-                                 ? solveResult.auditRootHash.slice(0, 24) + "…"
-                                 : "—"],
-                ["TIMESTAMP",  new Date(solveResult.attestation.timestamp).toISOString()],
-              ].map(([k, v]) => (
-                <div key={k} style={S.attestItem}>
-                  <div style={S.attestKey}>{k}</div>
-                  <div style={S.attestVal}>{v}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </main>
+      {/* ── CTA Footer ────────────────────────────────────────────────────── */}
+      <CTAFooter />
+
     </div>
   )
 }
@@ -482,46 +491,67 @@ export default function DemoPage() {
 const S: Record<string, React.CSSProperties> = {
   root: {
     minHeight: "100vh",
-    background: "#f0e8d8",
+    background: "#f8f5ee",
     color: "#111111",
     fontFamily: "var(--font-mono), 'IBM Plex Mono', monospace",
   },
-  main: {
+
+  // ── Hero header ────────────────────────────────────────────────────────────
+  hero: {
+    background: "#111111",
+    padding: "108px 64px 52px",
+    width: "100%",
+  },
+  heroInner: {
     maxWidth: 1160,
     margin: "0 auto",
-    padding: "32px 28px 48px",
   },
-  pageHeader: {
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    marginBottom: 28,
-    flexWrap: "wrap",
-    gap: 12,
-  },
-  pageTitle: {
-    fontSize: 22,
-    fontWeight: 700,
-    color: "#111111",
-    letterSpacing: "-0.4px",
-    marginBottom: 6,
-  },
-  pageSubtitle: {
-    fontSize: 12,
-    color: "rgba(17,17,17,0.35)",
-    lineHeight: 1.5,
-  },
-  trackBadge: {
+  heroBadge: {
     fontSize: 10,
-    color: "#7c3aed",
-    background: "rgba(124,58,237,0.06)",
-    border: "1px solid rgba(124,58,237,0.18)",
+    fontWeight: 700,
+    letterSpacing: "2.5px",
+    color: "rgba(255,255,255,0.3)",
+    marginBottom: 18,
+    textTransform: "uppercase" as const,
+  },
+  heroTitle: {
+    fontSize: "clamp(40px, 5vw, 64px)" as any,
+    fontWeight: 700,
+    color: "#ffffff",
+    letterSpacing: "-1px",
+    lineHeight: 1.05,
+    marginBottom: 14,
+  },
+  heroSub: {
+    fontSize: 15,
+    color: "rgba(255,255,255,0.4)",
+    lineHeight: 1.65,
+    marginBottom: 24,
+    maxWidth: 540,
+  },
+  trackPill: {
+    display: "inline-block",
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: "0.5px",
+    color: "rgba(255,255,255,0.35)",
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.12)",
     padding: "5px 12px",
     borderRadius: 4,
-    letterSpacing: "0.5px",
-    fontWeight: 700,
-    alignSelf: "flex-start",
   },
+
+  // ── Main content ───────────────────────────────────────────────────────────
+  main: {
+    background: "#f8f5ee",
+    width: "100%",
+  },
+  mainInner: {
+    maxWidth: 1160,
+    margin: "0 auto",
+    padding: "40px 64px 80px",
+  },
+
   grid: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
@@ -531,12 +561,12 @@ const S: Record<string, React.CSSProperties> = {
   card: {
     background: "#ffffff",
     border: "1px solid rgba(0,0,0,0.07)",
-    borderRadius: 12,
-    boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+    borderRadius: 14,
+    boxShadow: "0 2px 16px rgba(0,0,0,0.05)",
     position: "relative",
     overflow: "hidden",
   },
-  cardInner: { padding: "20px 26px 24px" },
+  cardInner: { padding: "24px 28px 28px" },
   cardHeader: {
     display: "flex",
     alignItems: "center",
@@ -693,9 +723,9 @@ const S: Record<string, React.CSSProperties> = {
   attestCard: {
     background: "#ffffff",
     border: "1px solid rgba(0,0,0,0.07)",
-    borderRadius: 12,
-    boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
-    padding: "20px 26px", marginBottom: 20,
+    borderRadius: 14,
+    boxShadow: "0 2px 16px rgba(0,0,0,0.05)",
+    padding: "24px 28px", marginBottom: 20,
   },
   attestHeader: {
     display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16,
@@ -718,4 +748,5 @@ const S: Record<string, React.CSSProperties> = {
   attestItem: { display: "flex", flexDirection: "column", gap: 4 },
   attestKey:  { fontSize: 10, fontWeight: 700, letterSpacing: "1px", color: "rgba(17,17,17,0.3)" },
   attestVal:  { fontSize: 12, color: "rgba(17,17,17,0.7)", fontFamily: "var(--font-mono), monospace" },
+
 }
