@@ -1,5 +1,7 @@
 import { ethers } from "ethers"
-import type { TradingIntent, SolveResponse } from "@veilsolver/shared"
+import type { TradingIntent, SolveResponse } from "veilsolver-sdk"
+
+export type { TradingIntent, SolveResponse }
 
 const SOLVER_API = process.env.NEXT_PUBLIC_SOLVER_API || "http://localhost:4000"
 
