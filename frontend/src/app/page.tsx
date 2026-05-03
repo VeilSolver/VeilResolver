@@ -421,6 +421,8 @@ const S: Record<string, React.CSSProperties> = {
     display: "flex", flexDirection: "column",
     alignItems: "center", justifyContent: "center",
     overflow: "hidden",
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
   },
   heroBgVideo: {
     position: "absolute", inset: 0,
@@ -483,6 +485,8 @@ const S: Record<string, React.CSSProperties> = {
     position: "relative", zIndex: 1,
     background: "#0f0f0f",
     padding: "96px 40px",
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
   },
   problemInner: {
     maxWidth: 1080, margin: "0 auto",
@@ -608,6 +612,7 @@ const S: Record<string, React.CSSProperties> = {
     overflow: "hidden",
     display: "flex",
     alignItems: "center",
+    borderRadius: 32,
   },
   teeBgVideo: {
     position: "absolute", top: 0, left: 0,

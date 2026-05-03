@@ -37,6 +37,8 @@ const S: Record<string, React.CSSProperties> = {
     overflow: "hidden",
     display: "flex",
     alignItems: "center",
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
   },
   stripVideo: {
     width: "100%",

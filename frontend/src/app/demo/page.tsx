@@ -59,7 +59,7 @@ function dotCss(status: StepStatus): React.CSSProperties {
   switch (status) {
     case "done":   return { ...base, background: "rgba(22,163,74,0.12)",   border: "1.5px solid #16a34a", color: "#16a34a" }
     case "error":  return { ...base, background: "rgba(220,38,38,0.1)",    border: "1.5px solid #dc2626", color: "#dc2626" }
-    case "active": return { ...base, background: "rgba(124,58,237,0.12)",  border: "1.5px solid #7c3aed", color: "#7c3aed" }
+    case "active": return { ...base, background: "rgba(0,0,0,0.06)",       border: "1.5px solid #111111", color: "#111111" }
     default:       return { ...base, background: "rgba(0,0,0,0.04)",       border: "1.5px solid rgba(0,0,0,0.12)", color: "rgba(17,17,17,0.3)" }
   }
 }
@@ -503,7 +503,7 @@ export default function DemoPage() {
 const S: Record<string, React.CSSProperties> = {
   root: {
     minHeight: "100vh",
-    background: "#f8f5ee",
+    background: "#e8e4dc",
     color: "#111111",
     fontFamily: "var(--font-mono), 'IBM Plex Mono', monospace",
   },
@@ -515,6 +515,8 @@ const S: Record<string, React.CSSProperties> = {
     width: "100%",
     position: "relative" as const,
     overflow: "hidden",
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
   },
   heroBgVideo: {
     position: "absolute" as const,
@@ -571,7 +573,7 @@ const S: Record<string, React.CSSProperties> = {
 
   // ── Main content ───────────────────────────────────────────────────────────
   main: {
-    background: "#f8f5ee",
+    background: "#e8e4dc",
     width: "100%",
   },
   mainInner: {
@@ -587,7 +589,7 @@ const S: Record<string, React.CSSProperties> = {
     marginBottom: 20,
   },
   card: {
-    background: "#ffffff",
+    background: "#f8f5ee",
     border: "1px solid rgba(0,0,0,0.07)",
     borderRadius: 14,
     boxShadow: "0 2px 16px rgba(0,0,0,0.05)",
@@ -605,13 +607,13 @@ const S: Record<string, React.CSSProperties> = {
   cardSub:   { fontSize: 11, color: "rgba(17,17,17,0.35)", lineHeight: 1.6, marginBottom: 20 },
   privatePill: {
     fontSize: 10, fontWeight: 700, letterSpacing: "1.2px",
-    color: "#7c3aed", background: "rgba(124,58,237,0.06)",
-    border: "1px solid rgba(124,58,237,0.18)", padding: "2px 8px", borderRadius: 3,
+    color: "#111111", background: "rgba(0,0,0,0.05)",
+    border: "1px solid rgba(0,0,0,0.15)", padding: "2px 8px", borderRadius: 3,
   },
   cardPill: {
     fontSize: 10, fontWeight: 700, letterSpacing: "1.2px",
-    color: "rgba(124,58,237,0.7)", background: "rgba(124,58,237,0.06)",
-    border: "1px solid rgba(124,58,237,0.18)", padding: "2px 8px", borderRadius: 3,
+    color: "rgba(17,17,17,0.5)", background: "rgba(0,0,0,0.04)",
+    border: "1px solid rgba(0,0,0,0.12)", padding: "2px 8px", borderRadius: 3,
   },
   pillGreen: {
     fontSize: 10, fontWeight: 700, letterSpacing: "1.2px",
@@ -620,8 +622,8 @@ const S: Record<string, React.CSSProperties> = {
   },
   pillLive: {
     fontSize: 10, fontWeight: 700, letterSpacing: "1.2px",
-    color: "#5b21b6", background: "rgba(124,58,237,0.08)",
-    border: "1px solid rgba(124,58,237,0.25)", padding: "2px 8px", borderRadius: 3,
+    color: "#111111", background: "rgba(0,0,0,0.06)",
+    border: "1px solid rgba(0,0,0,0.2)", padding: "2px 8px", borderRadius: 3,
   },
 
   // Form
@@ -657,9 +659,9 @@ const S: Record<string, React.CSSProperties> = {
   swapLine:    { flex: 1, height: 1, background: "rgba(0,0,0,0.08)" },
   swapIcon: {
     width: 28, height: 28, borderRadius: "50%",
-    background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.18)",
+    background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.12)",
     display: "flex", alignItems: "center", justifyContent: "center",
-    fontSize: 12, color: "rgba(124,58,237,0.6)", flexShrink: 0,
+    fontSize: 12, color: "rgba(17,17,17,0.5)", flexShrink: 0,
   },
   slipRow: { display: "flex", gap: 8 },
   slipBtn: {
@@ -669,8 +671,8 @@ const S: Record<string, React.CSSProperties> = {
     fontFamily: "var(--font-mono), monospace", cursor: "pointer",
   },
   slipActive: {
-    flex: 1, background: "rgba(124,58,237,0.1)", color: "#5b21b6",
-    border: "1px solid rgba(124,58,237,0.4)", borderRadius: 6,
+    flex: 1, background: "#111111", color: "#ffffff",
+    border: "1px solid #111111", borderRadius: 6,
     padding: "8px 0", fontSize: 12, fontWeight: 700,
     fontFamily: "var(--font-mono), monospace", cursor: "pointer",
   },
@@ -723,11 +725,11 @@ const S: Record<string, React.CSSProperties> = {
     position: "relative", overflow: "hidden",
   },
   stepDetail: { fontSize: 11, color: "rgba(17,17,17,0.4)", marginTop: 2 },
-  stepLink:   { color: "#7c3aed", textDecoration: "none", marginLeft: 4 },
+  stepLink:   { color: "#111111", textDecoration: "none", marginLeft: 4 },
 
   // Result
   resultCard: {
-    marginTop: 16, background: "#ffffff",
+    marginTop: 16, background: "#f8f5ee",
     border: "1px solid rgba(22,163,74,0.25)", borderRadius: 8,
     padding: "16px 18px",
   },
@@ -736,10 +738,10 @@ const S: Record<string, React.CSSProperties> = {
   },
   resultTitle:  { fontSize: 13, fontWeight: 700, color: "#16a34a" },
   viewTxBtn: {
-    fontSize: 11, color: "#7c3aed",
-    border: "1px solid rgba(124,58,237,0.2)", borderRadius: 4,
+    fontSize: 11, color: "#111111",
+    border: "1px solid rgba(0,0,0,0.15)", borderRadius: 4,
     padding: "3px 10px", textDecoration: "none",
-    background: "rgba(124,58,237,0.05)",
+    background: "rgba(0,0,0,0.04)",
   },
   resultGrid:   { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 24px" },
   resultItem:   { display: "flex", flexDirection: "column", gap: 3 },
@@ -749,7 +751,7 @@ const S: Record<string, React.CSSProperties> = {
 
   // Attestation
   attestCard: {
-    background: "#ffffff",
+    background: "#f8f5ee",
     border: "1px solid rgba(0,0,0,0.07)",
     borderRadius: 14,
     boxShadow: "0 2px 16px rgba(0,0,0,0.05)",

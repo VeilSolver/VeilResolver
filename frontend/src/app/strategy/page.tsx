@@ -231,6 +231,8 @@ const S: Record<string, React.CSSProperties> = {
     width: "100%",
     position: "relative" as const,
     overflow: "hidden",
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
   },
   heroBgVideo: {
     position: "absolute" as const,
