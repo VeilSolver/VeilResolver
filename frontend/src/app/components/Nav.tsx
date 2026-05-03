@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 interface NavProps {
   address?: string
   onConnect?: () => void
+  onDisconnect?: () => void
 }
 
 const NAV_LINKS = [
@@ -14,7 +15,7 @@ const NAV_LINKS = [
   { label: "Docs",     href: "/docs"     },
 ]
 
-export default function Nav({ address, onConnect }: NavProps) {
+export default function Nav({ address, onConnect, onDisconnect }: NavProps) {
   const pathname = usePathname()
 
   return (
@@ -47,6 +48,11 @@ export default function Nav({ address, onConnect }: NavProps) {
           <div style={S.walletChip}>
             <span style={S.walletDot} />
             <span style={S.walletAddr}>{address.slice(0, 6)}…{address.slice(-4)}</span>
+            {onDisconnect && (
+              <button style={S.disconnectBtn} onClick={onDisconnect} title="Disconnect wallet">
+                ✕
+              </button>
+            )}
           </div>
         ) : onConnect ? (
           <button style={S.connectBtn} onClick={onConnect}>
@@ -158,6 +164,16 @@ const S: Record<string, React.CSSProperties> = {
   walletAddr: {
     fontSize: 13,
     color: "#111111",
+    fontFamily: "var(--font-mono), 'IBM Plex Mono', monospace",
+  },
+  disconnectBtn: {
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+    color: "rgba(17,17,17,0.35)",
+    fontSize: 11,
+    padding: "0 0 0 4px",
+    lineHeight: 1,
     fontFamily: "var(--font-mono), 'IBM Plex Mono', monospace",
   },
   connectBtn: {

@@ -6,10 +6,9 @@ import { decrypt } from "eciesjs"
 import type { TradingIntent, ExecutionPlan } from "@veilsolver/shared"
 import { NETWORKS } from "@veilsolver/shared"
 
-// 0G AI Router — OpenAI-compatible endpoint running on 0G infrastructure
-// Model: deepseek-chat-v3-0324 (hosted on 0G compute network)
-const OG_API_URL  = "https://router-api.0g.ai/v1/chat/completions"
-const OG_MODEL    = "deepseek/deepseek-chat-v3-0324"
+// 0G Private Computer — provider-specific endpoint (qwen-2.5-7b-instruct)
+const OG_API_URL  = "https://compute-network-6.integratenetwork.work/v1/proxy/chat/completions"
+const OG_MODEL    = "qwen/qwen-2.5-7b-instruct"
 
 const SOLVER_SYSTEM_PROMPT = `
 You are VeilSolver, a MEV-resistant trade execution engine running inside
@@ -77,7 +76,9 @@ export async function solveIntent(intent: TradingIntent): Promise<{
   const apiKey       = process.env.OG_API_KEY!
   const systemPrompt = await resolveSystemPrompt(intent.strategyId)
 
-  console.log(`[Inference] Calling ${OG_MODEL} via 0G AI router...`)
+  console.log(`[Inference] Model:    ${OG_MODEL}`)
+  console.log(`[Inference] Endpoint: ${OG_API_URL}`)
+  const t0 = Date.now()
 
   const response = await fetch(OG_API_URL, {
     method: "POST",
@@ -108,7 +109,8 @@ export async function solveIntent(intent: TradingIntent): Promise<{
     throw new Error("[Inference] Empty response from 0G AI router")
   }
 
-  console.log(`[Inference] Raw response: ${rawPlan.slice(0, 100)}...`)
+  console.log(`[Inference] ✓ Response in ${Date.now() - t0}ms | chatID: ${chatID}`)
+  console.log(`[Inference] Raw: ${rawPlan.slice(0, 120).replace(/\n/g, " ")}...`)
 
   let plan: ExecutionPlan
   try {
@@ -122,7 +124,7 @@ export async function solveIntent(intent: TradingIntent): Promise<{
   // Full processResponse() attestation available via 0g-serving-broker in production
   const isVerified = true
 
-  console.log(`[Inference] Plan computed. intentHash: ${plan.intentHash?.slice(0, 16)}...`)
+  console.log(`[Inference] Plan parsed ✓ | intentHash: ${plan.intentHash?.slice(0, 18)}... | minOut: ${plan.minAmountOut}`)
   return { plan, chatID, isVerified }
 }
 

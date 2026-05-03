@@ -54,6 +54,8 @@ export default function DocsPage() {
 
       {/* ── Dark hero header ─────────────────────────────────────────────── */}
       <div style={S.hero} className="vs-hero-section">
+        <video src="https://duty-bucket-test.s3.ap-south-1.amazonaws.com/uploads/1777668867535-15682105_3840_2160_30fps.mp4" style={S.heroBgVideo} autoPlay muted loop playsInline />
+        <div style={S.heroOverlay} />
         <div style={S.heroInner}>
           <div style={S.heroBadge}>SDK DOCUMENTATION</div>
           <h1 style={S.heroTitle}>@veilsolver/sdk</h1>
@@ -342,10 +344,26 @@ const S: Record<string, React.CSSProperties> = {
     background: "#111111",
     padding: "108px 64px 52px",
     width: "100%",
+    position: "relative" as const,
+    overflow: "hidden",
+  },
+  heroBgVideo: {
+    position: "absolute" as const,
+    top: 0, left: 0, width: "100%", height: "100%",
+    objectFit: "cover" as const,
+    zIndex: 0,
+  },
+  heroOverlay: {
+    position: "absolute" as const,
+    top: 0, left: 0, right: 0, bottom: 0,
+    background: "rgba(0,0,0,0.65)",
+    zIndex: 1,
   },
   heroInner: {
     maxWidth: 900,
     margin: "0 auto",
+    position: "relative" as const,
+    zIndex: 2,
   },
   heroBadge: {
     fontSize: 10,

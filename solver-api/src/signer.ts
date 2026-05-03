@@ -31,7 +31,9 @@ export async function signPlan(
 
   // Sign with eth_sign prefix — matches ecrecover in Solidity
   const signature = await wallet.signMessage(ethers.getBytes(planHash))
-  console.log(`[Signer] Plan signed. Signer: ${wallet.address}`)
+  console.log(`[Signer] planHash:  ${planHash}`)
+  console.log(`[Signer] signer:    ${wallet.address}`)
+  console.log(`[Signer] signature: ${signature.slice(0, 20)}...${signature.slice(-8)}`)
   return signature
 }
 

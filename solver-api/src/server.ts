@@ -40,35 +40,51 @@ app.post("/solve", async (req, res) => {
     encryptedIntent: string
   }
 
-  // Basic validation
   if (!intent || !intent.tokenIn || !intent.amountIn || !intent.userAddress) {
     return res.status(400).json({ error: "Missing required intent fields" })
   }
 
-  console.log(`\n[Server] New intent from ${intent.userAddress}`)
-  console.log(`[Server] ${intent.amountIn} wei ${intent.tokenIn} → ${intent.tokenOut}`)
+  const solveStart = Date.now()
+  console.log(`\n${"─".repeat(56)}`)
+  console.log(`[Solve] ▶  New intent`)
+  console.log(`[Solve]    User:    ${intent.userAddress}`)
+  console.log(`[Solve]    TokenIn: ${intent.tokenIn}`)
+  console.log(`[Solve]    TokenOut:${intent.tokenOut}`)
+  console.log(`[Solve]    Amount:  ${intent.amountIn} wei`)
+  console.log(`[Solve]    Slippage:${intent.maxSlippageBps} bps`)
+  console.log(`[Solve]    Nonce:   ${intent.nonce}`)
+  console.log(`${"─".repeat(56)}`)
 
   try {
     // ── Step 1: TEE Inference ────────────────────────────────────────────────
-    // GLM-5-FP8 inside Intel TDX + H100 computes the execution plan
-    // isVerified = true means processResponse() confirmed TEE attestation
+    console.log(`[Step 1/4] TEE Inference...`)
+    const t1 = Date.now()
     const { plan, chatID, isVerified } = await solveIntent(intent)
+    console.log(`[Step 1/4] ✓ Done (${Date.now() - t1}ms)`)
+    console.log(`           chatID:        ${chatID}`)
+    console.log(`           isVerified:    ${isVerified}`)
+    console.log(`           minAmountOut:  ${plan.minAmountOut}`)
+    console.log(`           deadline:      ${plan.deadline}`)
 
     // ── Step 2: Sign the plan ────────────────────────────────────────────────
-    // Settlement contract will verify this signature onchain
+    console.log(`[Step 2/4] Signing plan...`)
+    const t2 = Date.now()
     const signature = await signPlan(plan, process.env.SOLVER_PRIVATE_KEY!)
+    console.log(`[Step 2/4] ✓ Done (${Date.now() - t2}ms)`)
+    console.log(`           signature: ${signature.slice(0, 20)}...`)
 
-    // ── Step 3: Build attestation object ────────────────────────────────────
+    // ── Step 3: Build attestation ────────────────────────────────────────────
     const attestation: SolveResponse["attestation"] = {
       chatID,
       isVerified,
       provider: process.env.GLM5_PROVIDER_ADDRESS || "0xd9966e...",
-      model: "GLM-5-FP8",
+      model:    "qwen-2.5-7b-instruct",
       timestamp: Date.now()
     }
 
     // ── Step 4: Store to 0G Storage ─────────────────────────────────────────
-    // Returns root hash — this is the public audit link
+    console.log(`[Step 3/4] Storing audit record to 0G Storage...`)
+    const t3 = Date.now()
     const auditRecord = buildAuditRecord(
       intent, encryptedIntent,
       { plan, chatID, isVerified, signature },
@@ -77,28 +93,26 @@ app.post("/solve", async (req, res) => {
 
     let auditRootHash = ""
     try {
-      auditRootHash = await storeAuditRecord(
-        auditRecord,
-        process.env.SOLVER_PRIVATE_KEY!
-      )
-    } catch (storageErr) {
-      // Don't fail the whole solve if storage is flaky
-      console.error("[Server] Storage failed (non-fatal):", storageErr)
+      auditRootHash = await storeAuditRecord(auditRecord, process.env.SOLVER_PRIVATE_KEY!)
+      console.log(`[Step 3/4] ✓ Done (${Date.now() - t3}ms)`)
+      console.log(`           rootHash: ${auditRootHash}`)
+    } catch (storageErr: any) {
+      console.error(`[Step 3/4] ✗ Storage failed (non-fatal): ${storageErr.message}`)
     }
 
-    // ── Step 5: Return to frontend ───────────────────────────────────────────
-    const response: SolveResponse = {
-      plan,
-      signature,
-      attestation,
-      auditRootHash
-    }
+    // ── Step 4: Return ───────────────────────────────────────────────────────
+    const response: SolveResponse = { plan, signature, attestation, auditRootHash }
 
-    console.log(`[Server] ✓ Solve complete. TEE verified: ${isVerified}`)
+    const total = Date.now() - solveStart
+    console.log(`[Step 4/4] ✓ Response sent`)
+    console.log(`${"─".repeat(56)}`)
+    console.log(`[Solve] ✅ Complete in ${total}ms | verified=${isVerified} | hash=${auditRootHash.slice(0,18)}...`)
+    console.log(`${"─".repeat(56)}\n`)
+
     res.json(response)
 
   } catch (err: any) {
-    console.error("[Server] Solve failed:", err.message)
+    console.error(`[Solve] ✗ FAILED (${Date.now() - solveStart}ms): ${err.message}`)
     res.status(500).json({ error: err.message })
   }
 })
