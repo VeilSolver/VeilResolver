@@ -15,6 +15,11 @@ const TOKEN_IN_ADDR  = process.env.NEXT_PUBLIC_TOKEN_IN         ?? ""
 const TOKEN_OUT_ADDR = process.env.NEXT_PUBLIC_TOKEN_OUT        ?? ""
 const CHAIN_ID       = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID ?? "16602")
 
+// ─── Network-aware explorer URLs ─────────────────────────────────────────────
+const IS_MAINNET     = CHAIN_ID === 16661
+const EXPLORER_URL   = IS_MAINNET ? "https://chainscan.0g.ai"        : "https://chainscan-galileo.0g.ai"
+const STORAGE_URL    = IS_MAINNET ? "https://storagescan.0g.ai"      : "https://storagescan-galileo.0g.ai"
+
 // ─── Token definitions ────────────────────────────────────────────────────────
 const TOKENS = [
   { symbol: "USDC", decimals: 6,  icon: "$", address: TOKEN_IN_ADDR  },
@@ -188,7 +193,7 @@ export default function DemoPage() {
       updateStep(
         "storage", "done",
         rootHash ? `Root: ${rootHash.slice(0, 16)}…` : "Storage skipped (non-fatal)",
-        rootHash ? `https://storagescan-galileo.0g.ai` : undefined
+        rootHash ? STORAGE_URL : undefined
       )
 
       // 5 — Settlement
@@ -203,7 +208,7 @@ export default function DemoPage() {
       updateStep(
         "settle", "done",
         `Block ${receipt?.blockNumber ?? "?"} · ${hash.slice(0, 10)}…`,
-        hash ? `https://chainscan-galileo.0g.ai/tx/${hash}` : undefined
+        hash ? `${EXPLORER_URL}/tx/${hash}` : undefined
       )
 
       setSolved(true)
@@ -233,7 +238,18 @@ export default function DemoPage() {
           <p style={S.heroSub}>
             Encrypted intents · TEE-computed execution plans · atomic settlement on 0G Chain
           </p>
-          <div style={S.trackPill}>TRACK 5 — PRIVACY &amp; SOVEREIGN INFRA</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" as const }}>
+            <div style={S.trackPill}>TRACK 5 — PRIVACY &amp; SOVEREIGN INFRA</div>
+            <div style={{
+              display: "inline-block", fontSize: 10, fontWeight: 700, letterSpacing: "0.5px",
+              color: IS_MAINNET ? "rgba(34,197,94,0.9)" : "rgba(251,191,36,0.9)",
+              background: IS_MAINNET ? "rgba(34,197,94,0.1)" : "rgba(251,191,36,0.08)",
+              border: `1px solid ${IS_MAINNET ? "rgba(34,197,94,0.3)" : "rgba(251,191,36,0.25)"}`,
+              padding: "5px 12px", borderRadius: 4,
+            }}>
+              {IS_MAINNET ? "⬡ 0G ARISTOTLE MAINNET · CHAIN 16661" : "⬡ 0G GALILEO TESTNET · CHAIN 16602"}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -419,7 +435,7 @@ export default function DemoPage() {
                       <span style={S.resultTitle}>✓ Execution Complete</span>
                       {txHash && (
                         <a
-                          href={`https://chainscan-galileo.0g.ai/tx/${txHash}`}
+                          href={`${EXPLORER_URL}/tx/${txHash}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={S.viewTxBtn}
