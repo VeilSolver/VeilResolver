@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-// ─── Interfaces ───────────────────────────────────────────────────────────────
-
 interface IERC20 {
     function transferFrom(address from, address to, uint256 amount) external returns (bool);
     function transfer(address to, uint256 amount) external returns (bool);
@@ -10,8 +8,6 @@ interface IERC20 {
     function balanceOf(address account) external view returns (uint256);
 }
 
-// Uniswap V2-compatible router (the fork deployed on 0G Chain)
-// Replace with V3 quoter if 0G's fork is V3
 interface IDEXRouter {
     function swapExactTokensForTokens(
         uint256 amountIn,
@@ -22,122 +18,130 @@ interface IDEXRouter {
     ) external returns (uint256[] memory amounts);
 }
 
-// ─── VeilSolver Settlement Contract ──────────────────────────────────────────
+// ─── VeilSolver: Private Intent Settlement Contract ───────────────────────────
 //
-// What this contract does:
-//   1. Holds the registered solver key (set at deploy, updatable by owner)
-//   2. Verifies that an execution plan was signed by that solver key
-//   3. Executes the swap atomically on the 0G DEX
-//   4. Collects a small fee per solve
-//   5. Emits an event with the attestation chatID so anyone can verify TEE proof
+// Generalised action executor — not just swaps.
+// Supports: SWAP | TRANSFER | ARBITRARY_CALL
 //
-// MEV protection: by the time this tx is onchain, execution is final.
-// The intent was never visible — it stayed encrypted until this moment.
+// Every action: encrypted intent → TEE computes plan → ECDSA signed → verified here
 
 contract VeilSolver {
 
-    // ─── State ────────────────────────────────────────────────────────────────
+    // ─── Action types ─────────────────────────────────────────────────────────
+    enum ActionType { SWAP, TRANSFER, ARBITRARY_CALL }
 
+    // ─── State ────────────────────────────────────────────────────────────────
     address public owner;
-    address public solverKey;       // registered at deploy — signs execution plans
-    address public dexRouter;       // 0G Chain DEX router address
+    address public solverKey;
+    address public dexRouter;
     address public feeRecipient;
 
-    uint256 public feeBps = 10;     // 0.1% per solve — adjustable by owner
-    uint256 public constant MAX_FEE_BPS = 100; // 1% hard cap
+    uint256 public feeBps = 10;
+    uint256 public constant MAX_FEE_BPS = 100;
 
-    // Replay protection: once an intent is executed, it can never be re-used
     mapping(bytes32 => bool) public executedIntents;
 
-    // ─── Events ───────────────────────────────────────────────────────────────
+    // ─── Action Plan ──────────────────────────────────────────────────────────
+    // All action types share this struct. Unused fields are zero.
+    struct ActionPlan {
+        ActionType actionType;
+        // SWAP fields
+        address tokenIn;
+        address tokenOut;
+        uint256 amountIn;
+        uint256 minAmountOut;
+        address[] route;
+        // TRANSFER fields
+        address recipient;
+        // ARBITRARY_CALL fields
+        address target;
+        bytes   callData;
+        uint256 ethValue;
+        // common
+        uint256 deadline;
+        bytes32 intentHash;
+        bytes   signature;
+    }
 
-    // Emitted on every successful solve
-    // attestationChatID links to the 0G Compute TEE proof for this execution
+    // ─── Events ───────────────────────────────────────────────────────────────
     event IntentExecuted(
         bytes32 indexed intentHash,
         address indexed user,
+        ActionType actionType,
         address tokenIn,
         address tokenOut,
         uint256 amountIn,
         uint256 amountOut,
-        string  attestationChatID,  // ZG-Res-Key — verifiable TEE proof
-        string  auditRootHash       // 0G Storage retrieval key
+        address recipient,
+        string  attestationChatID,
+        string  auditRootHash
     );
 
     event SolverKeyUpdated(address oldKey, address newKey);
     event FeeUpdated(uint256 oldBps, uint256 newBps);
 
-    // ─── Execution Plan struct ────────────────────────────────────────────────
-    // This is what the TEE-signed plan looks like onchain
-
-    struct ExecutionPlan {
-        address tokenIn;
-        address tokenOut;
-        uint256 amountIn;
-        uint256 minAmountOut;
-        address[] route;        // pool path e.g. [USDC, WETH]
-        uint256 deadline;
-        bytes32 intentHash;     // keccak256 of original (encrypted) intent
-        bytes   signature;      // ECDSA by solverKey over plan hash
-    }
-
     // ─── Constructor ──────────────────────────────────────────────────────────
-
-    constructor(
-        address _solverKey,
-        address _dexRouter,
-        address _feeRecipient
-    ) {
+    constructor(address _solverKey, address _dexRouter, address _feeRecipient) {
         owner        = msg.sender;
         solverKey    = _solverKey;
         dexRouter    = _dexRouter;
         feeRecipient = _feeRecipient;
     }
 
-    // ─── Core: execute a TEE-attested plan ───────────────────────────────────
-    //
-    // Called by the user (or a relayer) after getting a signed plan from the solver.
-    // The solver ran inside a TEE — attestationChatID is the proof link.
-
-    function executePlan(
-        ExecutionPlan calldata plan,
+    // ─── Core: execute a TEE-attested action plan ─────────────────────────────
+    function executeAction(
+        ActionPlan calldata plan,
         address user,
         string calldata attestationChatID,
         string calldata auditRootHash
-    ) external {
-
-        // 1. Check deadline
+    ) external payable {
+        // 1. Deadline
         require(block.timestamp <= plan.deadline, "VeilSolver: intent expired");
 
         // 2. Replay protection
         require(!executedIntents[plan.intentHash], "VeilSolver: intent already executed");
 
-        // 3. Verify solver signature over the plan hash
-        //    If the signature is wrong, this means the plan didn't come from
-        //    the registered TEE-backed solver — revert.
-        bytes32 planHash = _getPlanHash(plan);
+        // 3. Verify solver signature
+        bytes32 planHash  = _getPlanHash(plan);
         address recovered = _recoverSigner(planHash, plan.signature);
         require(recovered == solverKey, "VeilSolver: invalid solver signature");
 
-        // 4. Mark executed BEFORE external calls (reentrancy protection)
+        // 4. Mark executed BEFORE external calls (CEI pattern)
         executedIntents[plan.intentHash] = true;
 
-        // 5. Calculate fee
+        uint256 amountOut;
+
+        if (plan.actionType == ActionType.SWAP) {
+            amountOut = _executeSwap(plan, user);
+        } else if (plan.actionType == ActionType.TRANSFER) {
+            amountOut = _executeTransfer(plan, user);
+        } else if (plan.actionType == ActionType.ARBITRARY_CALL) {
+            amountOut = _executeArbitraryCall(plan, user);
+        } else {
+            revert("VeilSolver: unknown action type");
+        }
+
+        emit IntentExecuted(
+            plan.intentHash, user,
+            plan.actionType,
+            plan.tokenIn, plan.tokenOut,
+            plan.amountIn, amountOut,
+            plan.recipient,
+            attestationChatID, auditRootHash
+        );
+    }
+
+    // ─── SWAP ─────────────────────────────────────────────────────────────────
+    function _executeSwap(ActionPlan calldata plan, address user) internal returns (uint256) {
         uint256 fee           = (plan.amountIn * feeBps) / 10_000;
         uint256 amountForSwap = plan.amountIn - fee;
 
-        // 6. Pull tokens from user
         require(
             IERC20(plan.tokenIn).transferFrom(user, address(this), plan.amountIn),
             "VeilSolver: token transfer failed"
         );
+        if (fee > 0) IERC20(plan.tokenIn).transfer(feeRecipient, fee);
 
-        // 7. Send fee to recipient
-        if (fee > 0) {
-            IERC20(plan.tokenIn).transfer(feeRecipient, fee);
-        }
-
-        // 8. Approve DEX and execute swap
         IERC20(plan.tokenIn).approve(dexRouter, amountForSwap);
 
         uint256[] memory amounts = IDEXRouter(dexRouter).swapExactTokensForTokens(
@@ -147,31 +151,101 @@ contract VeilSolver {
             user,
             plan.deadline
         );
-
-        uint256 amountOut = amounts[amounts.length - 1];
-
-        // 9. Emit — attestationChatID is the public TEE proof link
-        emit IntentExecuted(
-            plan.intentHash,
-            user,
-            plan.tokenIn,
-            plan.tokenOut,
-            plan.amountIn,
-            amountOut,
-            attestationChatID,
-            auditRootHash
-        );
+        return amounts[amounts.length - 1];
     }
 
-    // ─── View: compute plan hash (same formula as solver-api/signer.ts) ──────
+    // ─── TRANSFER ─────────────────────────────────────────────────────────────
+    // ERC20: pull from user → fee → send remainder to recipient
+    // ETH:   msg.value → fee → send remainder to recipient
+    function _executeTransfer(ActionPlan calldata plan, address user) internal returns (uint256) {
+        require(plan.recipient != address(0), "VeilSolver: zero recipient");
 
-    function getPlanHash(ExecutionPlan calldata plan) external pure returns (bytes32) {
+        if (plan.tokenIn != address(0)) {
+            // ERC20 transfer
+            uint256 fee    = (plan.amountIn * feeBps) / 10_000;
+            uint256 netAmt = plan.amountIn - fee;
+
+            require(
+                IERC20(plan.tokenIn).transferFrom(user, address(this), plan.amountIn),
+                "VeilSolver: token transfer failed"
+            );
+            if (fee > 0) IERC20(plan.tokenIn).transfer(feeRecipient, fee);
+            IERC20(plan.tokenIn).transfer(plan.recipient, netAmt);
+            return netAmt;
+        } else {
+            // Native ETH transfer
+            require(msg.value == plan.amountIn, "VeilSolver: ETH amount mismatch");
+            uint256 fee    = (plan.amountIn * feeBps) / 10_000;
+            uint256 netAmt = plan.amountIn - fee;
+
+            if (fee > 0) { (bool f,) = payable(feeRecipient).call{value: fee}(""); require(f); }
+            (bool s,) = payable(plan.recipient).call{value: netAmt}(""); require(s);
+            return netAmt;
+        }
+    }
+
+    // ─── ARBITRARY_CALL ───────────────────────────────────────────────────────
+    // Pull optional ERC20 from user → forward approved amount + calldata to target
+    // If tokenIn is zero: pure ETH call (msg.value forwarded)
+    function _executeArbitraryCall(ActionPlan calldata plan, address user) internal returns (uint256) {
+        require(plan.target != address(0), "VeilSolver: zero target");
+
+        if (plan.tokenIn != address(0) && plan.amountIn > 0) {
+            uint256 fee    = (plan.amountIn * feeBps) / 10_000;
+            uint256 netAmt = plan.amountIn - fee;
+
+            require(
+                IERC20(plan.tokenIn).transferFrom(user, address(this), plan.amountIn),
+                "VeilSolver: token transfer failed"
+            );
+            if (fee > 0) IERC20(plan.tokenIn).transfer(feeRecipient, fee);
+            IERC20(plan.tokenIn).approve(plan.target, netAmt);
+        }
+
+        (bool success, ) = plan.target.call{value: plan.ethValue}(plan.callData);
+        require(success, "VeilSolver: arbitrary call failed");
+        return 0;
+    }
+
+    // ─── Plan hash — MUST match signer.ts exactly ────────────────────────────
+    function getPlanHash(ActionPlan calldata plan) external pure returns (bytes32) {
         return _getPlanHash(plan);
     }
 
-    // ─── Admin ────────────────────────────────────────────────────────────────
+    function _getPlanHash(ActionPlan calldata plan) internal pure returns (bytes32) {
+        return keccak256(abi.encode(
+            uint8(plan.actionType),
+            plan.tokenIn,
+            plan.tokenOut,
+            plan.amountIn,
+            plan.minAmountOut,
+            plan.recipient,
+            plan.target,
+            keccak256(plan.callData),
+            plan.ethValue,
+            plan.deadline,
+            plan.intentHash
+        ));
+    }
 
-    // Update solver key when enclave restarts (new attestation cycle)
+    function _recoverSigner(bytes32 hash, bytes memory sig) internal pure returns (address) {
+        bytes32 ethHash = keccak256(abi.encodePacked(
+            "\x19Ethereum Signed Message:\n32", hash
+        ));
+        (bytes32 r, bytes32 s, uint8 v) = _splitSig(sig);
+        return ecrecover(ethHash, v, r, s);
+    }
+
+    function _splitSig(bytes memory sig) internal pure returns (bytes32 r, bytes32 s, uint8 v) {
+        require(sig.length == 65, "VeilSolver: invalid signature length");
+        assembly {
+            r := mload(add(sig, 32))
+            s := mload(add(sig, 64))
+            v := byte(0, mload(add(sig, 96)))
+        }
+    }
+
+    // ─── Admin ────────────────────────────────────────────────────────────────
     function updateSolverKey(address newKey) external onlyOwner {
         require(newKey != address(0), "VeilSolver: zero address");
         emit SolverKeyUpdated(solverKey, newKey);
@@ -194,37 +268,7 @@ contract VeilSolver {
         owner = newOwner;
     }
 
-    // ─── Internal helpers ────────────────────────────────────────────────────
-
-    function _getPlanHash(ExecutionPlan calldata plan) internal pure returns (bytes32) {
-        return keccak256(abi.encode(
-            plan.tokenIn,
-            plan.tokenOut,
-            plan.amountIn,
-            plan.minAmountOut,
-            plan.deadline,
-            plan.intentHash
-        ));
-    }
-
-    function _recoverSigner(bytes32 hash, bytes memory sig) internal pure returns (address) {
-        // Add Ethereum signed message prefix — matches ethers.wallet.signMessage()
-        bytes32 ethHash = keccak256(abi.encodePacked(
-            "\x19Ethereum Signed Message:\n32",
-            hash
-        ));
-        (bytes32 r, bytes32 s, uint8 v) = _splitSig(sig);
-        return ecrecover(ethHash, v, r, s);
-    }
-
-    function _splitSig(bytes memory sig) internal pure returns (bytes32 r, bytes32 s, uint8 v) {
-        require(sig.length == 65, "VeilSolver: invalid signature length");
-        assembly {
-            r := mload(add(sig, 32))
-            s := mload(add(sig, 64))
-            v := byte(0, mload(add(sig, 96)))
-        }
-    }
+    receive() external payable {}
 
     modifier onlyOwner() {
         require(msg.sender == owner, "VeilSolver: not owner");

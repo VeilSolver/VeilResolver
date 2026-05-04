@@ -13,7 +13,8 @@ export { callSolverAPI } from "./client"
 export { submitSettlement } from "./settle"
 export { uploadStrategy } from "./strategy"
 export { SolverAPIError, SettlementError, EncryptionError, StrategyError } from "./errors"
-export type { TradingIntent, SolveResponse, ExecutionPlan } from "./types"
+export type { TradingIntent, SolveResponse, ExecutionPlan, ActionType } from "./types"
+export { ACTION_TYPE_ID } from "./types"
 
 export interface VeilSolverConfig {
   apiUrl: string
@@ -23,6 +24,7 @@ export interface VeilSolverConfig {
 }
 
 export interface SolveParams {
+  action?: import("./types").ActionType  // default: SWAP
   tokenIn: string
   tokenOut: string
   amountIn: string       // human-readable e.g. "100"
@@ -31,6 +33,10 @@ export interface SolveParams {
   signer: ethers.Signer
   strategyId?: string
   deadlineSeconds?: number
+  recipient?: string
+  target?: string
+  callData?: string
+  ethValue?: string
 }
 
 export interface SolveResult {
@@ -48,15 +54,20 @@ export class VeilSolverClient {
     const network = await params.signer.provider!.getNetwork()
 
     const intent = buildIntent({
-      tokenIn: params.tokenIn,
-      tokenOut: params.tokenOut,
-      amountIn: params.amountIn,
-      decimalsIn: params.decimalsIn,
-      maxSlippageBps: params.maxSlippageBps,
+      action:          params.action ?? "SWAP",
+      tokenIn:         params.tokenIn,
+      tokenOut:        params.tokenOut,
+      amountIn:        params.amountIn,
+      decimalsIn:      params.decimalsIn,
+      maxSlippageBps:  params.maxSlippageBps,
       userAddress,
-      chainId: Number(network.chainId),
+      chainId:         Number(network.chainId),
       deadlineSeconds: params.deadlineSeconds,
-      strategyId: params.strategyId
+      strategyId:      params.strategyId,
+      recipient:       params.recipient,
+      target:          params.target,
+      callData:        params.callData,
+      ethValue:        params.ethValue,
     })
 
     const encryptedIntent = await encryptIntent(intent, this.config.solverPublicKey)

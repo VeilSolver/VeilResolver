@@ -1,4 +1,13 @@
+export type ActionType = 'SWAP' | 'TRANSFER' | 'ARBITRARY_CALL'
+
+export const ACTION_TYPE_ID: Record<ActionType, number> = {
+  SWAP:           0,
+  TRANSFER:       1,
+  ARBITRARY_CALL: 2,
+}
+
 export interface TradingIntent {
+  action: ActionType
   tokenIn: string
   tokenOut: string
   amountIn: string
@@ -8,14 +17,23 @@ export interface TradingIntent {
   chainId: number
   nonce: string
   strategyId?: string
+  recipient?: string
+  target?: string
+  callData?: string
+  ethValue?: string
 }
 
 export interface ExecutionPlan {
+  actionType: ActionType
   tokenIn: string
   tokenOut: string
   amountIn: string
   minAmountOut: string
   route: string[]
+  recipient: string
+  target: string
+  callData: string
+  ethValue: string
   deadline: number
   intentHash: string
   reasoning?: string

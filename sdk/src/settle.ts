@@ -1,5 +1,6 @@
 import { ethers } from "ethers"
 import type { SolveResponse } from "./types"
+import { ACTION_TYPE_ID } from "./types"
 import { SettlementError } from "./errors"
 
 const ERC20_ABI = [
@@ -8,7 +9,26 @@ const ERC20_ABI = [
 ]
 
 const VEILSOLVER_ABI = [
-  "function executePlan(tuple(address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut, address[] route, uint256 deadline, bytes32 intentHash, bytes signature) plan, address user, string attestationChatID, string auditRootHash)"
+  `function executeAction(
+    tuple(
+      uint8   actionType,
+      address tokenIn,
+      address tokenOut,
+      uint256 amountIn,
+      uint256 minAmountOut,
+      address[] route,
+      address recipient,
+      address target,
+      bytes   callData,
+      uint256 ethValue,
+      uint256 deadline,
+      bytes32 intentHash,
+      bytes   signature
+    ) plan,
+    address user,
+    string  attestationChatID,
+    string  auditRootHash
+  )`
 ]
 
 export async function submitSettlement(params: {
@@ -22,32 +42,52 @@ export async function submitSettlement(params: {
   try {
     const userAddress = await signer.getAddress()
 
-    // Approve exact amount — never approve max uint256 to a DEX router
-    const token = new ethers.Contract(plan.tokenIn, ERC20_ABI, signer)
-    const allowance: bigint = await token.allowance(userAddress, contractAddress)
-    if (allowance < BigInt(plan.amountIn)) {
-      const approveTx = await token.approve(contractAddress, BigInt(plan.amountIn))
-      await approveTx.wait()
+    // Approve ERC20 for SWAP and ERC20 TRANSFER
+    const needsApproval =
+      (plan.actionType === "SWAP" || plan.actionType === "TRANSFER") &&
+      plan.tokenIn !== ethers.ZeroAddress
+
+    if (needsApproval) {
+      const token = new ethers.Contract(plan.tokenIn, ERC20_ABI, signer)
+      const allowance: bigint = await token.allowance(userAddress, contractAddress)
+      if (allowance < BigInt(plan.amountIn)) {
+        const approveTx = await token.approve(contractAddress, BigInt(plan.amountIn))
+        await approveTx.wait()
+      }
     }
 
     const contract = new ethers.Contract(contractAddress, VEILSOLVER_ABI, signer)
 
     const planTuple = [
+      ACTION_TYPE_ID[plan.actionType],
       plan.tokenIn,
       plan.tokenOut,
       BigInt(plan.amountIn),
       BigInt(plan.minAmountOut),
       plan.route,
+      plan.recipient,
+      plan.target,
+      plan.callData,
+      BigInt(plan.ethValue),
       BigInt(plan.deadline),
       plan.intentHash,
       signature
     ]
 
-    const tx = await contract.executePlan(
+    // Pass msg.value for native ETH actions
+    const ethValue =
+      plan.actionType === "TRANSFER" && plan.tokenIn === ethers.ZeroAddress
+        ? BigInt(plan.amountIn)
+        : plan.actionType === "ARBITRARY_CALL" && BigInt(plan.ethValue) > 0n
+          ? BigInt(plan.ethValue)
+          : 0n
+
+    const tx = await contract.executeAction(
       planTuple,
       userAddress,
       attestation.chatID,
-      auditRootHash
+      auditRootHash,
+      { value: ethValue }
     )
 
     return tx.wait()
