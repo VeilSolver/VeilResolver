@@ -9,7 +9,34 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "VeilSolver — MEV-resistant intent solver on 0G",
-  description: "Private trade execution via TEE-attested AI on 0G Sealed Inference"
+  description: "DeFi loses $1B+/year to MEV. VeilSolver encrypts your trading intent, runs it inside an Intel TDX enclave, and settles atomically on 0G Chain. Your strategy never leaves the enclave.",
+  metadataBase: new URL("https://veilsolver.xyz"),
+  openGraph: {
+    title: "VeilSolver — Private Intent Solver on 0G",
+    description: "Encrypted intents. TEE-attested AI execution. Atomic onchain settlement. Your strategy stays secret.",
+    url: "https://veilsolver.xyz",
+    siteName: "VeilSolver",
+    images: [
+      {
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "VeilSolver — Private DeFi Intent Solver",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "VeilSolver — Private Intent Solver on 0G",
+    description: "Encrypted intents. TEE-attested AI execution. Atomic onchain settlement. Your strategy stays secret.",
+    images: ["/logo.png"],
+  },
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

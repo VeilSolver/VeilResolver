@@ -165,7 +165,7 @@ export default function LandingPage() {
       {/* ── Nav ────────────────────────────────────────────────────────────── */}
       <header style={S.topNav} className="vs-nav">
         <div style={S.navLogo}>
-          <span style={S.logoHex}>⬡</span>
+          <img src="/logo.png" alt="VeilSolver" style={{ width: 28, height: 28, objectFit: "contain" }} />
           <span style={S.logoText}>VeilSolver</span>
           <span style={S.logoDot} />
         </div>
@@ -407,7 +407,6 @@ const S: Record<string, React.CSSProperties> = {
     borderRadius: 14,
   },
   navLogo: { display: "flex", alignItems: "center", gap: 8, userSelect: "none" },
-  logoHex:  { fontSize: 20, color: "#111111" },
   logoText: { fontSize: 16, fontWeight: 700, color: "#111111", letterSpacing: "-0.3px" },
   logoDot:  { width: 5, height: 5, borderRadius: "50%", background: "#111111", marginBottom: 10 },
   navLinks: { display: "flex", alignItems: "center", gap: 4 },
