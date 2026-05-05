@@ -30,8 +30,8 @@ importers:
         specifier: ^18.0.0
         version: 18.3.1(react@18.3.1)
       veilsolver-sdk:
-        specifier: ^0.1.0
-        version: 0.1.0(ethers@6.16.0)
+        specifier: 0.1.1
+        version: 0.1.1(ethers@6.16.0)
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -1793,8 +1793,8 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  veilsolver-sdk@0.1.0:
-    resolution: {integrity: sha512-guOIOLyqyE9ymTQpO+gbh0oIK7tlPK7hgvG4T1D7UKOGaqsoTXHmtT7YkQzUpXO6xGNVXKngLtPC19SbHCL1pg==}
+  veilsolver-sdk@0.1.1:
+    resolution: {integrity: sha512-3aHScy1J1pw2b+BsJ3TuB8Htk0pOorLpSmdWbdGlT4yrFc3hPDMK9qwTlvHJE5Gc24zBaG1VeJHA5qYrWE5P3Q==}
     peerDependencies:
       ethers: ^6.0.0
 
@@ -2554,7 +2554,7 @@ snapshots:
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.10
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@7.2.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@7.2.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.5(eslint@8.57.1)
       eslint-plugin-react-hooks: 5.0.0-canary-7118f5dd7-20230705(eslint@8.57.1)
@@ -2584,7 +2584,7 @@ snapshots:
       tinyglobby: 0.2.16
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@7.2.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@7.2.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -2599,7 +2599,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@7.2.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@7.2.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -3814,7 +3814,7 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  veilsolver-sdk@0.1.0(ethers@6.16.0):
+  veilsolver-sdk@0.1.1(ethers@6.16.0):
     dependencies:
       eciesjs: 0.4.18
       ethers: 6.16.0
