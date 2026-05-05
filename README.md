@@ -10,12 +10,12 @@
 
 | Network | Contract | Explorer |
 |---|---|---|
-| **0G Aristotle Mainnet** (16661) | `0xTODO_MAINNET_CONTRACT` | [chainscan.0g.ai](https://chainscan.0g.ai/address/0xTODO_MAINNET_CONTRACT) |
+| **0G Aristotle Mainnet** (16661) | `0x02553ef7529118EB33E199b7329732d4F2884cEb` | [chainscan.0g.ai](https://chainscan.0g.ai/address/0x02553ef7529118EB33E199b7329732d4F2884cEb) |
 | 0G Galileo Testnet (16602) | `0x4181c06901Ee172cc169fFDf44c6C192c22265aF` | [chainscan-galileo.0g.ai](https://chainscan-galileo.0g.ai/address/0x4181c06901Ee172cc169fFDf44c6C192c22265aF) |
 
 **Live demo:** https://veilsolver.vercel.app
 
-**Solver API:** https://your-solver-api.railway.app/health
+**Solver API:** http://localhost:4000/health
 
 ---
 
@@ -215,23 +215,3 @@ v3 (Production):  On-chain TDX attestation · institutional compliance toolkit �
 
 Built with: **0G Compute (TeeML)** · **0G Chain** · **0G Storage** · Foundry · Next.js · TypeScript
 
----
-
-## Submission TODO
-
-### Critical (blocks grand prize)
-
-- [ ] Deploy contract to **0G mainnet** (chainId 16661): `SOLVER_PRIVATE_KEY=0x... forge script script/Deploy.s.sol --rpc-url https://evmrpc.0g.ai --broadcast --evm-version cancun -vvvv`
-- [ ] Update `solver-api/.env` — set `NETWORK=mainnet`, fill `CONTRACT_ADDRESS`, `TOKEN_IN`, `TOKEN_OUT`, `DEX_ROUTER`
-- [ ] Update `frontend/.env.local` — set `NEXT_PUBLIC_CHAIN_ID=16661`, fill mainnet contract + token + pubkey
-- [ ] Deploy solver API to Railway/Fly.io (judges need a public URL, not localhost)
-- [ ] Redeploy frontend to Vercel with mainnet env vars
-- [ ] Replace `0xTODO_MAINNET_CONTRACT` in this README with real address + chainscan.0g.ai link
-- [ ] Verify contract on chainscan.0g.ai so judges can read source
-
-### Submission requirements
-
-- [ ] Submit mainnet contract address + explorer link in hackathon form
-- [ ] 3-minute demo video (YouTube / Loom)
-- [ ] X post: @0G_labs @0g_CN @0g_Eco @HackQuest_ #0GHackathon #BuildOn0G
-- [ ] GitHub repo public with commits spanning hackathon period
