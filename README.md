@@ -13,7 +13,7 @@
 | **0G Aristotle Mainnet** (16661) | `0x02553ef7529118EB33E199b7329732d4F2884cEb` | [chainscan.0g.ai](https://chainscan.0g.ai/address/0x02553ef7529118EB33E199b7329732d4F2884cEb) |
 | 0G Galileo Testnet (16602) | `0x4181c06901Ee172cc169fFDf44c6C192c22265aF` | [chainscan-galileo.0g.ai](https://chainscan-galileo.0g.ai/address/0x4181c06901Ee172cc169fFDf44c6C192c22265aF) |
 
-**Live demo:** https://veilsolver.vercel.app
+**Live demo:** https://veil-resolver-frontend.vercel.app
 
 **Solver API:** http://localhost:4000/health
 
