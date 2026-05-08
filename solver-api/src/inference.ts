@@ -12,14 +12,23 @@ const OG_MODEL   = "qwen/qwen-2.5-7b-instruct"
 
 // Always appended — custom strategies define rules, this enforces output format
 const JSON_FORMAT_CONSTRAINT = `
-CRITICAL OUTPUT RULES (override everything else):
-- Respond with ONLY a single valid JSON object. No markdown, no prose, no headers, no bullet points.
-- Do not wrap in code fences. Do not explain. Do not add text before or after the JSON.
+CRITICAL OUTPUT RULES:
+- Respond with ONLY a single valid JSON object. No markdown, no prose, no code fences.
 - Your entire response must be parseable by JSON.parse().
-- The JSON must contain ALL of these exact fields:
-  actionType, tokenIn, tokenOut, amountIn, minAmountOut, route,
-  recipient, target, callData, ethValue, deadline, intentHash, reasoning
-- Use zero values ("0x0000000000000000000000000000000000000000", "0", [], "0x") for unused fields.
+- TWO valid output shapes:
+
+  Shape 1 — REJECTION (use when strategy rules forbid this intent):
+  {"error": "<reason why rejected>"}
+
+  Shape 2 — EXECUTION PLAN (use when intent is allowed):
+  {
+    actionType, tokenIn, tokenOut, amountIn, minAmountOut, route,
+    recipient, target, callData, ethValue, deadline, intentHash, reasoning
+  }
+  Use zero values ("0x0000000000000000000000000000000000000000", "0", [], "0x") for unused fields.
+
+- If your strategy defines rules that this intent violates, use Shape 1.
+- Otherwise use Shape 2.
 `
 
 const SOLVER_SYSTEM_PROMPT = `
@@ -105,8 +114,7 @@ async function resolveSystemPrompt(strategyId?: string): Promise<string> {
     const { prompt }    = JSON.parse(Buffer.from(decrypted).toString("utf-8"))
 
     console.log(`[Strategy] Loaded custom strategy: ${strategyId.slice(0, 16)}...`)
-    // Append format constraint — strategy defines rules, not output format
-    return `${prompt as string}\n\n${JSON_FORMAT_CONSTRAINT}`
+    return prompt as string
   } catch (e: any) {
     console.error(`[Strategy] Failed to load strategy, using default:`, e.message)
     return SOLVER_SYSTEM_PROMPT
