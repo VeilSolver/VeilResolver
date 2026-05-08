@@ -123,6 +123,31 @@ export default function DemoPage() {
     if (!ethereum) { setError("MetaMask not found"); return }
     try {
       const provider = new ethers.BrowserProvider(ethereum)
+      const network = await provider.getNetwork()
+      if (Number(network.chainId) !== CHAIN_ID) {
+        try {
+          await ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0x" + CHAIN_ID.toString(16) }],
+          })
+        } catch (switchErr: any) {
+          // Chain not in MetaMask — add it
+          if (switchErr.code === 4902) {
+            await ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [{
+                chainId: "0x" + CHAIN_ID.toString(16),
+                chainName: IS_MAINNET ? "0G Aristotle Mainnet" : "0G Galileo Testnet",
+                rpcUrls: [IS_MAINNET ? "https://evmrpc.0g.ai" : "https://evmrpc-testnet.0g.ai"],
+                nativeCurrency: { name: "OG", symbol: "OG", decimals: 18 },
+                blockExplorerUrls: [EXPLORER_URL],
+              }],
+            })
+          } else {
+            throw switchErr
+          }
+        }
+      }
       const s = await provider.getSigner()
       setSigner(s); setAddress(await s.getAddress())
     } catch (e: any) { setError(`Wallet connect failed: ${e.message}`) }
