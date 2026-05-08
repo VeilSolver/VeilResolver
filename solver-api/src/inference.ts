@@ -169,6 +169,9 @@ export async function solveIntent(intent: TradingIntent): Promise<{
     const cleaned = fenceStripped.slice(start, end + 1)
     const parsed  = JSON.parse(cleaned)
 
+    // Strategy rejected the intent (e.g. $100 cap policy)
+    if (parsed.error) throw new Error(`Strategy rejected: ${parsed.error}`)
+
     // Strip any non-digit suffix the model may add (e.g. "100000000 wei" → "100000000")
     const wei = (v: any, fallback: string) =>
       v != null ? String(v).replace(/[^0-9]/g, "") || fallback : fallback
