@@ -5,13 +5,13 @@
   "workspaces": [
     "frontend",
     "solver-api",
-    "sdk",
-    "shared"
+    "sdk"
   ],
   "scripts": {
-    "dev:api": "npm run dev --workspace=solver-api",
-    "dev:frontend": "npm run dev --workspace=frontend",
-    "build": "npm run build --workspace=shared && npm run build --workspace=sdk && npm run build --workspace=frontend"
+    "dev:api": "pnpm --filter=solver-api run dev",
+    "dev:frontend": "pnpm --filter=frontend run dev",
+    "start:api": "pnpm --filter=solver-api run start",
+    "build": "pnpm --filter=veilsolver-sdk run build && pnpm --filter=frontend run build"
   },
   "dependencies": {
     "motion": "^12.38.0"
