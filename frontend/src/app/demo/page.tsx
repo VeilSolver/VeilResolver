@@ -159,6 +159,28 @@ export default function DemoPage() {
     setSteps(INITIAL_STEPS)
   }
 
+  const [faucetLoading, setFaucetLoading] = useState(false)
+  const [faucetMsg,     setFaucetMsg]     = useState("")
+
+  async function faucetTokens() {
+    if (!address || IS_MAINNET) return
+    setFaucetLoading(true); setFaucetMsg("")
+    try {
+      const res = await fetch(`${API_URL}/faucet`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ address }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setFaucetMsg("Minted 1000 USDC + 1 WETH to your wallet")
+    } catch (e: any) {
+      setFaucetMsg("Faucet failed: " + e.message)
+    } finally {
+      setFaucetLoading(false)
+    }
+  }
+
   function updateStep(id: string, status: StepStatus, detail?: string, link?: string) {
     setSteps(prev => prev.map(s =>
       s.id === id ? { ...s, status, ...(detail ? { detail } : {}), ...(link ? { link } : {}) } : s
@@ -464,6 +486,23 @@ export default function DemoPage() {
                   )}
                 </button>
 
+                {!IS_MAINNET && address && (
+                  <div style={{ marginTop: 8 }}>
+                    <button
+                      onClick={faucetTokens}
+                      disabled={faucetLoading}
+                      style={{ ...S.btnSecondary, width: "100%", fontSize: 13 }}
+                    >
+                      {faucetLoading ? "Minting…" : "Get Test Tokens (1000 USDC + 1 WETH)"}
+                    </button>
+                    {faucetMsg && (
+                      <div style={{ ...S.privacyNote, marginTop: 6, color: faucetMsg.startsWith("Faucet failed") ? "#f87171" : "#4ade80" }}>
+                        {faucetMsg}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {error && (
                   <div style={S.errorBox}>
                     <span style={{ flexShrink: 0 }}>⚠</span> {error}
@@ -660,6 +699,7 @@ const S: Record<string, React.CSSProperties> = {
   slipActive:     { flex: 1, background: "#111111", color: "#ffffff", border: "1px solid #111111", borderRadius: 6, padding: "8px 0", fontSize: 12, fontWeight: 700, fontFamily: "var(--font-mono), monospace", cursor: "pointer" },
   infoBanner:     { fontSize: 11, color: "rgba(17,17,17,0.5)", background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.06)", borderRadius: 6, padding: "10px 12px", lineHeight: 1.6, marginBottom: 16 },
 
+  btnSecondary:  { padding: "10px 14px", background: "rgba(0,0,0,0.04)", color: "rgba(17,17,17,0.6)", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 8, cursor: "pointer", fontWeight: 600, fontFamily: "var(--font-mono), monospace", display: "flex", alignItems: "center", justifyContent: "center" },
   solvePrimary:  { width: "100%", marginTop: 8, padding: "14px", background: "#111111", color: "#fff", border: "1px solid rgba(0,0,0,0.2)", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 700, fontFamily: "var(--font-mono), monospace", letterSpacing: "0.3px", boxShadow: "0 4px 16px rgba(0,0,0,0.12)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 },
   solveRunning:  { width: "100%", marginTop: 8, padding: "14px", background: "rgba(17,17,17,0.4)", color: "rgba(17,17,17,0.3)", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 8, cursor: "not-allowed", fontSize: 14, fontWeight: 700, fontFamily: "var(--font-mono), monospace", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 },
   solveDisabled: { width: "100%", marginTop: 8, padding: "14px", background: "rgba(17,17,17,0.04)", color: "rgba(17,17,17,0.2)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: 8, cursor: "not-allowed", fontSize: 14, fontWeight: 600, fontFamily: "var(--font-mono), monospace", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 },

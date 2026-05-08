@@ -142,6 +142,52 @@ app.post("/strategy", async (req, res) => {
   }
 })
 
+// ─── Testnet faucet endpoint ──────────────────────────────────────────────────
+// POST /faucet { address }
+// Solver wallet mints mock USDC + WETH — user pays no gas
+app.post("/faucet", async (req, res) => {
+  if (process.env.NETWORK === "mainnet") {
+    return res.status(403).json({ error: "Faucet not available on mainnet" })
+  }
+
+  const { address } = req.body as { address: string }
+  if (!address || !ethers.isAddress(address)) {
+    return res.status(400).json({ error: "Invalid address" })
+  }
+
+  const key = process.env.SOLVER_PRIVATE_KEY
+  if (!key) return res.status(500).json({ error: "Solver key not configured" })
+
+  const { NETWORKS } = await import("veilsolver-sdk/dist/types")
+  const net      = (process.env.NETWORK as keyof typeof NETWORKS) || "testnet"
+  const provider = new ethers.JsonRpcProvider(NETWORKS[net].rpcUrl)
+  const wallet   = new ethers.Wallet(key, provider)
+
+  const MINT_ABI = ["function mint(address to, uint256 amount) external"]
+  const usdcAddr = process.env.TOKEN_IN
+  const wethAddr = process.env.TOKEN_OUT
+
+  if (!usdcAddr || !wethAddr) {
+    return res.status(500).json({ error: "Token addresses not configured" })
+  }
+
+  try {
+    const usdc = new ethers.Contract(usdcAddr, MINT_ABI, wallet)
+    const weth = new ethers.Contract(wethAddr, MINT_ABI, wallet)
+
+    const tx1 = await usdc.mint(address, ethers.parseUnits("1000", 6))
+    await tx1.wait()
+    const tx2 = await weth.mint(address, ethers.parseEther("1"))
+    await tx2.wait()
+
+    console.log(`[Faucet] Minted 1000 USDC + 1 WETH → ${address}`)
+    res.json({ success: true, usdc: "1000", weth: "1" })
+  } catch (err: any) {
+    console.error("[Faucet] Failed:", err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
 // ─── Audit retrieval endpoint ─────────────────────────────────────────────────
 // GET /audit/:rootHash — anyone can verify execution by root hash
 app.get("/audit/:rootHash", async (req, res) => {
