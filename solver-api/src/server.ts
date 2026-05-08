@@ -5,7 +5,7 @@ import { ethers } from "ethers"
 import { solveIntent } from "./inference"
 import { storeAuditRecord, buildAuditRecord, storeRawBytes } from "./storage"
 import { signPlan, getSolverAddress } from "./signer"
-import type { TradingIntent, SolveResponse } from "@veilsolver/shared"
+import type { TradingIntent, SolveResponse } from "veilsolver-sdk"
 
 const app  = express()
 const PORT = process.env.PORT || 4000

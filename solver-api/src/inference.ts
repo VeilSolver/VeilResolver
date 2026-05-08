@@ -3,8 +3,9 @@ import * as path from "path"
 import * as fs from "fs/promises"
 import { Indexer } from "@0gfoundation/0g-ts-sdk"
 import { decrypt } from "eciesjs"
-import type { TradingIntent, ExecutionPlan } from "@veilsolver/shared"
-import { NETWORKS } from "@veilsolver/shared"
+import type { TradingIntent, ExecutionPlan } from "veilsolver-sdk"
+import { NETWORKS } from "veilsolver-sdk/dist/types"
+
 
 const OG_API_URL = "https://compute-network-6.integratenetwork.work/v1/proxy/chat/completions"
 const OG_MODEL   = "qwen/qwen-2.5-7b-instruct"
@@ -101,7 +102,7 @@ async function resolveSystemPrompt(strategyId?: string): Promise<string> {
     const encryptedHex  = await fs.readFile(tmpPath, "utf-8")
     const privateKeyBuf = Buffer.from(process.env.SOLVER_PRIVATE_KEY!.replace("0x", ""), "hex")
     const decrypted     = decrypt(privateKeyBuf, Buffer.from(encryptedHex, "hex"))
-    const { prompt }    = JSON.parse(decrypted.toString("utf-8"))
+    const { prompt }    = JSON.parse(Buffer.from(decrypted).toString("utf-8"))
 
     console.log(`[Strategy] Loaded custom strategy: ${strategyId.slice(0, 16)}...`)
     // Append format constraint — strategy defines rules, not output format

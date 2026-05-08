@@ -1,6 +1,6 @@
 import { ethers } from "ethers"
-import type { ExecutionPlan } from "@veilsolver/shared"
-import { ACTION_TYPE_ID } from "@veilsolver/shared"
+import type { ExecutionPlan } from "veilsolver-sdk"
+import { ACTION_TYPE_ID } from "veilsolver-sdk"
 
 // ─── Plan hash — MUST match VeilSolver.sol _getPlanHash() exactly ────────────
 //

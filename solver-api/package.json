@@ -4,21 +4,22 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
-    "build": "tsc"
+    "build": "tsc --noEmit"
   },
   "dependencies": {
-    "@0glabs/0g-serving-broker": "^0.7.5",
     "@0gfoundation/0g-ts-sdk": "^1.2.6",
-    "@veilsolver/shared": "*",
+    "@0glabs/0g-serving-broker": "^0.7.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "eciesjs": "^0.4.0",
     "ethers": "^6.0.0",
     "express": "^4.18.0",
-    "cors": "^2.8.5",
-    "eciesjs": "^0.4.0",
-    "dotenv": "^16.0.0"
+    "veilsolver-sdk": "^0.1.1"
   },
   "devDependencies": {
-    "@types/express": "^4.17.0",
     "@types/cors": "^2.8.0",
+    "@types/express": "^4.17.0",
+    "@types/node": "^25.6.2",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0"
   }

@@ -1,0 +1,4 @@
+node_modules
+solver-api/node_modules
+.env
+*.env

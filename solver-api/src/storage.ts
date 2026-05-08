@@ -1,7 +1,7 @@
 import { Indexer, MemData } from "@0gfoundation/0g-ts-sdk"
 import { ethers } from "ethers"
-import type { TradingIntent, ExecutionPlan, SolveResponse } from "@veilsolver/shared"
-import { NETWORKS } from "@veilsolver/shared"
+import type { TradingIntent, ExecutionPlan, SolveResponse } from "veilsolver-sdk"
+import { NETWORKS } from "veilsolver-sdk/dist/types"
 
 const NETWORK   = (process.env.NETWORK as keyof typeof NETWORKS) || "testnet"
 const netConfig = NETWORKS[NETWORK]
@@ -48,6 +48,7 @@ export async function storeAuditRecord(
   if (uploadErr) throw new Error(`[Storage] Upload failed: ${uploadErr}`)
 
   const rootHash = tree!.rootHash()
+  if (!rootHash) throw new Error("[Storage] Failed to compute root hash")
   console.log(`[Storage] ✓ Stored. Root hash: ${rootHash}`)
   console.log(`[Storage] View: ${netConfig.explorerUrl.replace("chainscan", "storagescan")}`)
 
@@ -72,7 +73,9 @@ export async function storeRawBytes(
   const [, uploadErr] = await indexer.upload(memData, netConfig.rpcUrl, signer)
   if (uploadErr) throw new Error(`[Storage] Upload failed: ${uploadErr}`)
 
-  return tree!.rootHash()
+  const rawHash = tree!.rootHash()
+  if (!rawHash) throw new Error("[Storage] Failed to compute root hash")
+  return rawHash
 }
 
 // ─── Build audit record from solve result ────────────────────────────────────
