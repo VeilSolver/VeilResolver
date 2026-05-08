@@ -15,7 +15,7 @@
 
 **Live demo:** https://veil-resolver-frontend.vercel.app
 
-**Solver API:** http://localhost:4000/health
+**Solver API:** https://veilresolver.onrender.com/health
 
 ---
 
@@ -86,14 +86,13 @@ veilsolver/
 │   ├── src/inference.ts    # 0G Compute call + response parsing
 │   ├── src/storage.ts      # 0G Storage audit trail upload
 │   ├── src/signer.ts       # ECDSA plan signing
-│   └── src/server.ts       # Express: /solve /strategy /health /audit
+│   └── src/server.ts       # Express: /solve /strategy /faucet /health /audit
 ├── frontend/               # Next.js — demo UI
 │   ├── src/app/demo/       # Live demo: intent form + execution trace
 │   ├── src/app/strategy/   # Strategy Registry: upload encrypted strategies
 │   └── src/lib/solver.ts   # buildIntent / encryptIntent / callSolverAPI / submitSettlement
-├── sdk/                    # TypeScript SDK (@veilsolver/sdk)
-│   └── src/                # VeilSolverClient, strategy registry, audit history
-└── shared/                 # Shared types: TradingIntent, ExecutionPlan, SolveResponse
+└── sdk/                    # TypeScript SDK (veilsolver-sdk on npm)
+    └── src/                # VeilSolverClient, strategy registry, audit history
 ```
 
 ---
@@ -188,6 +187,58 @@ Returns solver address, network, and status.
 ### `POST /strategy`
 
 Upload an ECIES-encrypted strategy prompt to 0G Storage. Returns `strategyId` (merkle root hash). Solver fetches and decrypts inside TEE at solve time.
+
+### `POST /faucet` (testnet only)
+
+```json
+{ "address": "0xYourWallet" }
+```
+
+Mints 1000 mock USDC + 1 mock WETH to the given address. Solver wallet pays gas — user pays nothing. Returns `{ "success": true, "usdc": "1000", "weth": "1" }`.
+
+---
+
+## SDK Integration
+
+```bash
+npm install veilsolver-sdk ethers
+```
+
+### Testnet config
+
+| Value | Address |
+|---|---|
+| Solver API | `https://veilresolver.onrender.com` |
+| Contract (0G Galileo, chainId 16602) | `0x4181c06901Ee172cc169fFDf44c6C192c22265aF` |
+| Solver public key | `0x039a5b81f4b2bc0c181b1292f3aeb55721de43dc7e3d07c6c44ba3aa08e7caae04` |
+| Mock USDC | `0xDb799A80BC1eC3688F84002Fb900B590F516f1CE` |
+| Mock WETH | `0x51addE398737830C2Ee2C32aF35C6C4f5e2a6180` |
+
+```typescript
+import { VeilSolverClient } from "veilsolver-sdk"
+
+const solver = new VeilSolverClient({
+  apiUrl:          "https://veilresolver.onrender.com",
+  contractAddress: "0x4181c06901Ee172cc169fFDf44c6C192c22265aF",
+  solverPublicKey: "0x039a5b81f4b2bc0c181b1292f3aeb55721de43dc7e3d07c6c44ba3aa08e7caae04",
+})
+
+const { receipt } = await solver.solve({
+  tokenIn:        "0xDb799A80BC1eC3688F84002Fb900B590F516f1CE", // mock USDC
+  tokenOut:       "0x51addE398737830C2Ee2C32aF35C6C4f5e2a6180", // mock WETH
+  amountIn:       "100",
+  decimalsIn:     6,
+  maxSlippageBps: 150,
+  signer,  // ethers.Signer on chainId 16602 (0G Galileo Testnet)
+})
+```
+
+Get test tokens first (no gas needed):
+```bash
+curl -X POST https://veilresolver.onrender.com/faucet \
+  -H "Content-Type: application/json" \
+  -d '{"address": "0xYourWallet"}'
+```
 
 ---
 

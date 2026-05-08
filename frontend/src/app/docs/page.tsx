@@ -40,6 +40,7 @@ function FnDoc({
 
 const QUICK_NAV = [
   ["Installation",   "#install"],
+  ["Testnet Config", "#config"],
   ["Quick Start",    "#quickstart"],
   ["buildIntent",    "#buildintent"],
   ["uploadStrategy", "#strategy"],
@@ -63,7 +64,7 @@ export default function DocsPage() {
             TypeScript SDK for MEV-resistant DeFi on 0G.
             Two functions. Zero mempool exposure.
           </p>
-          <div style={S.versionBadge}>v0.1.0</div>
+          <div style={S.versionBadge}>v0.1.1</div>
           <div style={S.quickNav}>
             {QUICK_NAV.map(([label, href]) => (
               <a key={href} href={href} style={S.quickNavPill}>{label}</a>
@@ -78,7 +79,49 @@ export default function DocsPage() {
           {/* ── Installation ────────────────────────────────────────────── */}
           <section style={S.section} id="install">
             <SectionHeading id="install">Installation</SectionHeading>
-            <CodeBlock lang="bash" code={`npm install @veilsolver/sdk ethers`} />
+            <CodeBlock lang="bash" code={`npm install veilsolver-sdk ethers`} />
+          </section>
+
+          {/* ── Testnet Config ──────────────────────────────────────────── */}
+          <section style={S.section} id="config">
+            <SectionHeading id="config">Testnet Config</SectionHeading>
+            <p style={S.prose}>
+              All values below are live on 0G Galileo Testnet (chainId 16602).
+              Use the faucet endpoint to get test tokens — no gas required from the user.
+            </p>
+            <div style={S.tableWrap}>
+              <div style={S.tableTitle}>LIVE TESTNET VALUES</div>
+              <table style={S.table}>
+                <tbody>
+                  {[
+                    ["Solver API",       "https://veilresolver.onrender.com"],
+                    ["Contract",         "0x4181c06901Ee172cc169fFDf44c6C192c22265aF"],
+                    ["Solver public key","0x039a5b81f4b2bc0c181b1292f3aeb55721de43dc7e3d07c6c44ba3aa08e7caae04"],
+                    ["Mock USDC",        "0xDb799A80BC1eC3688F84002Fb900B590F516f1CE"],
+                    ["Mock WETH",        "0x51addE398737830C2Ee2C32aF35C6C4f5e2a6180"],
+                    ["Chain RPC",        "https://evmrpc-testnet.0g.ai"],
+                    ["Chain ID",         "16602"],
+                  ].map(([k, v]) => (
+                    <tr key={k} style={S.tr}>
+                      <td style={{ ...S.td, color: "rgba(17,17,17,0.4)", width: 160 }}>{k}</td>
+                      <td style={{ ...S.td, wordBreak: "break-all" }}>{v}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <CodeBlock lang="bash" code={`# Get test tokens — solver pays gas, user gets 1000 USDC + 1 WETH
+curl -X POST https://veilresolver.onrender.com/faucet \\
+  -H "Content-Type: application/json" \\
+  -d '{"address": "0xYourWallet"}'`} />
+            <div style={S.infoBox}>
+              <div style={S.infoBoxTitle}>Native gas token</div>
+              <p style={S.infoBoxText}>
+                The faucet mints ERC20 test tokens for free. You still need OG (native gas) to submit
+                the settlement transaction. Get it at{" "}
+                <a href="https://faucet.0g.ai" target="_blank" rel="noopener" style={{ color: "#7c3aed" }}>faucet.0g.ai</a>.
+              </p>
+            </div>
           </section>
 
           {/* ── Quick Start ─────────────────────────────────────────────── */}
@@ -88,23 +131,23 @@ export default function DocsPage() {
               Use <code style={S.inlineCode}>VeilSolverClient</code> for the full pipeline in a single call.
               It handles encryption, TEE inference, plan signing, and on-chain settlement.
             </p>
-            <CodeBlock lang="typescript" code={`import { VeilSolverClient } from "@veilsolver/sdk"
+            <CodeBlock lang="typescript" code={`import { VeilSolverClient } from "veilsolver-sdk"
 import { ethers } from "ethers"
 
 const solver = new VeilSolverClient({
-  apiUrl:          "https://solver.veilsolver.xyz",
-  contractAddress: "0x02553ef7529118EB33E199b7329732d4F2884cEb",
-  solverPublicKey: "0x039a5b81f4b2bc0c181b1292f3aeb55721de43dc7e3d07c6c44ba3aa08e7caae04"
+  apiUrl:          "https://veilresolver.onrender.com",
+  contractAddress: "0x4181c06901Ee172cc169fFDf44c6C192c22265aF",
+  solverPublicKey: "0x039a5b81f4b2bc0c181b1292f3aeb55721de43dc7e3d07c6c44ba3aa08e7caae04",
 })
 
 // Full pipeline: encrypt → TEE → sign → settle
 const { solveResponse, receipt } = await solver.solve({
-  tokenIn:        "0x0683F96B376cd819C12Bdb0c723b7D508ceF42Cf",  // USDC
-  tokenOut:       "0x2550713236C759e185068ba531E2f63dc0de41D2",  // WETH
+  tokenIn:        "0xDb799A80BC1eC3688F84002Fb900B590F516f1CE",  // mock USDC
+  tokenOut:       "0x51addE398737830C2Ee2C32aF35C6C4f5e2a6180",  // mock WETH
   amountIn:       "100",      // human-readable — 100 USDC
   decimalsIn:     6,
-  maxSlippageBps: 50,         // 0.5%
-  signer                      // ethers.Signer from MetaMask
+  maxSlippageBps: 150,        // 1.5%
+  signer                      // ethers.Signer on chainId 16602
 })
 
 console.log("tx:", receipt?.hash)
@@ -134,7 +177,7 @@ const intent = buildIntent({
   decimalsIn:     6,
   maxSlippageBps: 50,      // 0.5%
   userAddress:    "0xYourWallet...",
-  chainId:        16602,   // 0G testnet
+  chainId:        16602,   // 0G Galileo Testnet
   strategyId:     "0abc…"  // optional: 0G Storage root hash
 })`} />
 
@@ -161,7 +204,7 @@ const encryptedIntent = await encryptIntent(intent, SOLVER_PUBKEY)
 const response = await callSolverAPI(
   intent,
   encryptedIntent,
-  "https://solver.veilsolver.xyz"
+  "https://veilresolver.onrender.com"
 )
 
 // response.plan         — execution plan (tokenIn, tokenOut, minAmountOut, route, deadline)
@@ -179,8 +222,8 @@ const response = await callSolverAPI(
 
 const receipt = await submitSettlement({
   solveResult:     response,
-  contractAddress: "0x02553ef7529118EB33E199b7329732d4F2884cEb",
-  signer           // ethers.Signer — must have tokenIn balance + approval
+  contractAddress: "0x4181c06901Ee172cc169fFDf44c6C192c22265aF",
+  signer           // ethers.Signer on chainId 16602 — must have tokenIn balance
 })
 
 console.log("tx hash:", receipt?.hash)
