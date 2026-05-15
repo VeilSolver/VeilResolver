@@ -91,7 +91,7 @@ export default function DemoPage() {
   const [tokenIn,  setTokenIn]  = useState(TOKENS[0])
   const [tokenOut, setTokenOut] = useState(TOKENS[1])
   const [amount,   setAmount]   = useState("100")
-  const [slippage, setSlippage] = useState("50")
+  const [slippage, setSlippage] = useState("100")
 
   // Form — TRANSFER
   const [transferToken,     setTransferToken]     = useState(TOKENS[0])

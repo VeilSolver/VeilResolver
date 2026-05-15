@@ -200,7 +200,8 @@ export async function solveIntent(intent: TradingIntent): Promise<{
       intentHash:   parsed.intentHash   ?? intent.nonce,
       reasoning:    parsed.reasoning,
     }
-  } catch (e) {
+  } catch (e: any) {
+    if (e instanceof Error && e.message.startsWith("Strategy rejected:")) throw e
     throw new Error(`[Inference] Invalid JSON from model: ${rawPlan}`)
   }
 
@@ -214,13 +215,14 @@ function buildIntentPrompt(intent: TradingIntent): string {
   const deadlineTs = Math.floor(Date.now() / 1000) + intent.deadlineSeconds
 
   const base = `
-Action Type:  ${intent.action}
-Token In:     ${intent.tokenIn}
-Amount In:    ${intent.amountIn} wei
-Max Slippage: ${intent.maxSlippageBps} bps (${intent.maxSlippageBps / 100}%)
-Deadline:     ${deadlineTs} (unix timestamp)
-User:         ${intent.userAddress}
-Nonce:        ${intent.nonce}
+Action Type:    ${intent.action}
+Token In:       ${intent.tokenIn}
+Amount In:      ${intent.amountIn} wei
+maxSlippageBps: ${intent.maxSlippageBps}
+Max Slippage:   ${intent.maxSlippageBps} bps (${intent.maxSlippageBps / 100}%)
+Deadline:       ${deadlineTs} (unix timestamp)
+User:           ${intent.userAddress}
+Nonce:          ${intent.nonce}
 `.trim()
 
   const extra: string[] = []
